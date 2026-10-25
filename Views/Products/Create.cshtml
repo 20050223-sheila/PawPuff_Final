@@ -1,0 +1,3 @@
+@model Product
+@{ViewData["Title"]="Add product";}
+<h1 class="h2">Add a product</h1><form asp-action="Create" method="post" class="form-panel"><div asp-validation-summary="ModelOnly" class="text-danger"></div><partial name="_ProductForm" model="Model"/><button class="btn btn-primary">Save product</button><a class="btn btn-link" asp-action="Index">Cancel</a></form>

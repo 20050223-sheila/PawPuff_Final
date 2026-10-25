@@ -1,0 +1,3 @@
+@model Order
+@{ViewData["Title"]="Order status";}
+<div class="text-center py-5"><div class="display-2">🐾</div><h1 class="h2 mt-3">Thank you for your order!</h1><p class="text-muted">Your payment status has been checked with the payment provider.</p><div class="summary-card mx-auto text-start mt-4"><p><strong>Order number:</strong> #@Model.Id</p><p><strong>Status:</strong> @Model.Status</p><p><strong>Payment method:</strong> @Model.PaymentMethod</p><p><strong>Delivery address:</strong> @Model.ShippingAddress</p><hr/><p class="fs-5"><strong>Total: £@Model.Total.ToString("0.00")</strong></p></div><a class="btn btn-primary mt-4" asp-controller="Products" asp-action="Index">Continue shopping</a></div>

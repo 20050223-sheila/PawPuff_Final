@@ -1,0 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+namespace PawPuff.Models;
+public class Order { public int Id {get;set;} public string? UserId {get;set;} public DateTime CreatedAt {get;set;} = DateTime.UtcNow; public string Status {get;set;} = "Pending"; public string PaymentMethod {get;set;} = "Card"; public string ShippingAddress {get;set;} = ""; public string Notes {get;set;} = ""; public decimal Subtotal {get;set;} public decimal Shipping {get;set;} public decimal Discount {get;set;} public decimal Total {get;set;} public List<OrderItem> Items {get;set;} = new(); }
+public class OrderItem { public int Id {get;set;} public int OrderId {get;set;} public int ProductId {get;set;} public string ProductName {get;set;} = ""; public decimal UnitPrice {get;set;} public int Quantity {get;set;} public decimal LineTotal {get;set;} }
+public class CheckoutViewModel { [Required] public string ShippingAddress {get;set;} = ""; [Required] public string PaymentMethod {get;set;} = "Card"; [StringLength(500)] public string Notes {get;set;} = ""; }
