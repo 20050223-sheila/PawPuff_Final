@@ -22,6 +22,14 @@ builder.Services.AddScoped<CartService>();
 var app = builder.Build();
 if (!app.Environment.IsDevelopment()) { app.UseExceptionHandler("/Home/Error"); app.UseHsts(); }
 app.UseHttpsRedirection(); app.UseStaticFiles(); app.UseRouting(); app.UseSession(); app.UseAuthentication(); app.UseAuthorization();
-using (var scope = app.Services.CreateScope()) { await SeedData.InitializeAsync(scope.ServiceProvider); }
+
+if (app.Configuration.GetValue<bool>("SeedData:RunOnStartup", true))
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        await SeedData.InitializeAsync(scope.ServiceProvider);
+    }
+}
+
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 app.Run();
