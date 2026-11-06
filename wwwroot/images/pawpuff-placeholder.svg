@@ -1,0 +1,28 @@
+
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="600" height="450"
+     viewBox="0 0 600 450">
+  <rect width="600" height="450" fill="#f0f4ed"/>
+  <circle cx="300" cy="190" r="90" fill="#d7e7d6"/>
+  <g fill="#5b8868">
+    <circle cx="255" cy="140" r="17"/>
+    <circle cx="290" cy="125" r="17"/>
+    <circle cx="325" cy="130" r="17"/>
+    <circle cx="355" cy="150" r="17"/>
+    <path d="M260 190 C270 155 330 155 340 190
+             C355 230 320 248 300 230
+             C280 248 245 230 260 190Z"/>
+  </g>
+  <text x="300" y="320"
+        font-family="Arial, sans-serif"
+        font-size="38" font-weight="bold"
+        text-anchor="middle" fill="#416e50">
+    PawPuff
+  </text>
+  <text x="300" y="352"
+        font-family="Arial, sans-serif"
+        font-size="16"
+        text-anchor="middle" fill="#829b85">
+    Happy pets, happy homes
+  </text>
+</svg>

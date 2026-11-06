@@ -1,183 +1,231 @@
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PawPuff.Data;
 using PawPuff.Models;
 using PawPuff.Services;
-using Stripe;
-using Stripe.Checkout;
 
-namespace PawPuff.Controllers;
-
-[Authorize]
-public class CheckoutController(ShopDbContext db, CartService cart, IConfiguration configuration) : Controller
+namespace PawPuff.Controllers
 {
-    private List<CartLine> GetLines() => cart.Get();
-    private void SetTotals(List<CartLine> lines)
+    [Authorize]
+    public class CheckoutController : Controller
     {
-        ViewBag.Lines = lines;
-        ViewBag.Subtotal = lines.Sum(x => x.Subtotal);
-        ViewBag.Shipping = lines.Sum(x => x.Subtotal) >= 50m ? 0m : 3.99m;
-        ViewBag.Discount = 0m;
-    }
+        private readonly ShopDbContext db;
+        private readonly CartService cart;
 
-    [HttpGet]
-    public IActionResult Index()
-    {
-        var lines = GetLines();
-        if (lines.Count == 0) return RedirectToAction("Index", "Cart");
-        SetTotals(lines);
-        ViewBag.StripeConfigured = !string.IsNullOrWhiteSpace(configuration["Stripe:SecretKey"]);
-        return View(new CheckoutViewModel());
-    }
-
-    [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Index(CheckoutViewModel model)
-    {
-        var lines = GetLines();
-        if (lines.Count == 0) return RedirectToAction("Index", "Cart");
-        SetTotals(lines);
-        ViewBag.StripeConfigured = !string.IsNullOrWhiteSpace(configuration["Stripe:SecretKey"]);
-        if (!ModelState.IsValid) return View(model);
-
-        // Only card payment is wired to Stripe in this starter. WeChat Pay/Alipay need
-        // provider account eligibility and explicit dashboard configuration.
-        if (model.PaymentMethod != "Card")
+        public CheckoutController(
+            ShopDbContext db,
+            CartService cart)
         {
-            ModelState.AddModelError(nameof(model.PaymentMethod), "This payment method is not configured. Choose Credit/Debit Card (Stripe test mode) or contact the project administrator.");
-            return View(model);
+            this.db = db;
+            this.cart = cart;
         }
 
-        var secretKey = configuration["Stripe:SecretKey"];
-        if (string.IsNullOrWhiteSpace(secretKey))
+        private async Task<List<CartLine>> GetLinesAsync()
         {
-            ModelState.AddModelError(string.Empty, "Stripe is not configured yet. Add a Stripe TEST secret key using User Secrets or an environment variable. No payment has been taken.");
-            return View(model);
+            return await cart.GetForCurrentUserAsync();
         }
 
-        var productRows = new List<PawPuff.Models.Product>();
-        foreach (var line in lines)
+        private void SetTotals(List<CartLine> lines)
         {
-            var product = await db.Products.FirstOrDefaultAsync(x => x.Id == line.ProductId && x.IsActive);
-            if (product is null || product.Stock < line.Quantity)
+            decimal subtotal = lines.Sum(x => x.Subtotal);
+
+            ViewBag.Lines = lines;
+            ViewBag.Subtotal = subtotal;
+            ViewBag.Shipping = subtotal >= 50m ? 0m : 3.99m;
+            ViewBag.Discount = 0m;
+            ViewBag.StripeConfigured = false;
+        }
+
+        // Display checkout page
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var lines = await GetLinesAsync();
+
+            if (lines.Count == 0)
             {
-                ModelState.AddModelError(string.Empty, $"Stock is unavailable for {line.Name}. Please return to the cart.");
-                return View(model);
+                return RedirectToAction("Index", "Cart");
             }
-            productRows.Add(product);
+
+            SetTotals(lines);
+
+            return View(new CheckoutViewModel
+            {
+                PaymentMethod = "Card"
+            });
         }
 
-        var subtotal = lines.Sum(x => x.Subtotal);
-        var shipping = subtotal >= 50m ? 0m : 3.99m;
-        var order = new Order
+        // All checkout submissions use demo payment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> Index(
+            CheckoutViewModel model)
         {
-            UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
-            PaymentMethod = "Card (Stripe)",
-            ShippingAddress = model.ShippingAddress,
-            Notes = model.Notes,
-            Subtotal = subtotal,
-            Shipping = shipping,
-            Discount = 0m,
-            Total = subtotal + shipping,
-            Status = "PendingPayment",
-            Items = lines.Select(x => new OrderItem { ProductId = x.ProductId, ProductName = x.Name, UnitPrice = x.Price, Quantity = x.Quantity, LineTotal = x.Subtotal }).ToList()
-        };
-        db.Orders.Add(order);
-        await db.SaveChangesAsync();
+            return DemoPay(model);
+        }
 
-        try
+        // Demo payment: no real money is charged
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DemoPay(
+            CheckoutViewModel model)
         {
-            StripeConfiguration.ApiKey = secretKey;
-            var options = new SessionCreateOptions
+            var userId = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrWhiteSpace(userId))
             {
-                Mode = "payment",
-                PaymentMethodTypes = new List<string> { "card" },
-                ClientReferenceId = order.Id.ToString(),
-                SuccessUrl = Url.Action(nameof(PaymentSuccess), "Checkout", new { session_id = "{CHECKOUT_SESSION_ID}" }, Request.Scheme)!,
-                CancelUrl = Url.Action(nameof(PaymentCancelled), "Checkout", new { orderId = order.Id }, Request.Scheme)!,
-                Metadata = new Dictionary<string, string> { ["orderId"] = order.Id.ToString() },
-                LineItems = lines.Select(line => new SessionLineItemOptions
+                return Challenge();
+            }
+
+            var lines = await GetLinesAsync();
+
+            if (lines.Count == 0)
+            {
+                return RedirectToAction("Index", "Cart");
+            }
+
+            // Validate selected demo payment method
+            if (model.PaymentMethod != "Card" &&
+                model.PaymentMethod != "WeChat Pay" &&
+                model.PaymentMethod != "Alipay")
+            {
+                ModelState.AddModelError(
+                    nameof(model.PaymentMethod),
+                    "Please select a valid demo payment method.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                SetTotals(lines);
+                return View("Index", model);
+            }
+
+            // Recheck products, prices and stock
+            var verified = new List<CartLine>();
+
+            foreach (var line in lines)
+            {
+                var product = await db.Products
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(p =>
+                        p.Id == line.ProductId &&
+                        p.IsActive);
+
+                if (product == null ||
+                    line.Quantity <= 0 ||
+                    product.Stock < line.Quantity)
                 {
+                    TempData["Error"] =
+                        "Product stock changed. Please check your cart.";
+
+                    return RedirectToAction("Index", "Cart");
+                }
+
+                verified.Add(new CartLine
+                {
+                    ProductId = product.Id,
+                    Name = product.Name,
+                    Price = product.Price,
                     Quantity = line.Quantity,
-                    PriceData = new SessionLineItemPriceDataOptions
-                    {
-                        Currency = "gbp",
-                        UnitAmount = decimal.ToInt64(decimal.Round(line.Price * 100m, 0, MidpointRounding.AwayFromZero)),
-                        ProductData = new SessionLineItemPriceDataProductDataOptions { Name = line.Name }
-                    }
-                }).ToList()
-            };
-            if (shipping > 0)
-            {
-                options.LineItems.Add(new SessionLineItemOptions
-                {
-                    Quantity = 1,
-                    PriceData = new SessionLineItemPriceDataOptions
-                    {
-                        Currency = "gbp", UnitAmount = 399,
-                        ProductData = new SessionLineItemPriceDataProductDataOptions { Name = "Shipping" }
-                    }
+                    Stock = product.Stock,
+                    ImageUrl = product.ImageUrl
                 });
             }
-            var session = await new SessionService().CreateAsync(options);
-            return Redirect(session.Url);
-        }
-        catch (StripeException)
-        {
-            order.Status = "PaymentSetupError";
-            await db.SaveChangesAsync();
-            ModelState.AddModelError(string.Empty, "Could not start Stripe Checkout. Check your test API key and Stripe configuration. No payment has been taken.");
-            return View(model);
-        }
-    }
 
-    [HttpGet]
-    public async Task<IActionResult> PaymentSuccess(string session_id)
-    {
-        var secretKey = configuration["Stripe:SecretKey"];
-        if (string.IsNullOrWhiteSpace(secretKey) || string.IsNullOrWhiteSpace(session_id)) return RedirectToAction(nameof(Index));
-        StripeConfiguration.ApiKey = secretKey;
-        Session session;
-        try { session = await new SessionService().GetAsync(session_id); }
-        catch (StripeException) { return BadRequest("Unable to verify payment session."); }
-        if (session.PaymentStatus != "paid" || !int.TryParse(session.Metadata.GetValueOrDefault("orderId"), out var orderId))
-            return RedirectToAction(nameof(PaymentCancelled), new { orderId = int.TryParse(session.ClientReferenceId, out var id) ? id : 0 });
+            decimal subtotal = verified.Sum(x => x.Subtotal);
+            decimal shipping = subtotal >= 50m ? 0m : 3.99m;
 
-        var order = await db.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == orderId);
-        if (order is null) return NotFound();
-        if (order.Status != "Paid")
-        {
-            // Recheck current inventory before decrementing. For production use, add a webhook
-            // and transactional/idempotent stock reservation to handle concurrent orders.
-            foreach (var item in order.Items)
+            // Stock changes and order creation use one transaction
+            await using var transaction =
+                await db.Database.BeginTransactionAsync();
+
+            try
             {
-                var product = await db.Products.FirstOrDefaultAsync(p => p.Id == item.ProductId && p.IsActive);
-                if (product is null || product.Stock < item.Quantity)
+                foreach (var line in verified)
                 {
-                    order.Status = "PaidNeedsReview";
-                    await db.SaveChangesAsync();
-                    return View("Success", order);
-                }
-                product.Stock -= item.Quantity;
-            }
-            order.Status = "Paid";
-            await db.SaveChangesAsync();
-            cart.Clear();
-        }
-        return View("Success", order);
-    }
+                    // Only decrease stock when enough remains
+                    int affected = await db.Products
+                        .Where(p =>
+                            p.Id == line.ProductId &&
+                            p.IsActive &&
+                            p.Stock >= line.Quantity)
+                        .ExecuteUpdateAsync(setters =>
+                            setters.SetProperty(
+                                p => p.Stock,
+                                p => p.Stock - line.Quantity));
 
-    [HttpGet]
-    public async Task<IActionResult> PaymentCancelled(int orderId)
-    {
-        var order = await db.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
-        if (order is not null && order.Status == "PendingPayment")
-        {
-            order.Status = "PaymentCancelled";
-            await db.SaveChangesAsync();
+                    if (affected != 1)
+                    {
+                        throw new InvalidOperationException(
+                            "Stock is no longer sufficient.");
+                    }
+                }
+
+                var order = new Order
+                {
+                    UserId = userId,
+                    CreatedAt = DateTime.UtcNow,
+                    Status = "DemoPaid",
+                    PaymentMethod = model.PaymentMethod + " (Demo)",
+                    ShippingAddress = model.ShippingAddress,
+                    Notes = model.Notes,
+                    Subtotal = subtotal,
+                    Shipping = shipping,
+                    Discount = 0m,
+                    Total = subtotal + shipping,
+
+                    Items = verified.Select(line =>
+                        new OrderItem
+                        {
+                            ProductId = line.ProductId,
+                            ProductName = line.Name,
+                            UnitPrice = line.Price,
+                            Quantity = line.Quantity,
+                            LineTotal = line.Subtotal
+                        }).ToList()
+                };
+
+                db.Orders.Add(order);
+                await db.SaveChangesAsync();
+
+                // Remove database cart items
+                await db.CartItems
+                    .Where(c => c.UserId == userId)
+                    .ExecuteDeleteAsync();
+
+                await transaction.CommitAsync();
+
+                // Clear session cart after successful commit
+                cart.Clear();
+
+                return View("Success", order);
+            }
+            catch (InvalidOperationException)
+            {
+                await transaction.RollbackAsync();
+
+                TempData["Error"] =
+                    "Stock changed. Please check your cart and try again.";
+
+                return RedirectToAction("Index", "Cart");
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+
+                TempData["Error"] =
+                    "Could not complete the demo order. Please try again.";
+
+                return RedirectToAction("Index", "Cart");
+            }
         }
-        TempData["CheckoutMessage"] = "Payment was cancelled. Your cart has not been cleared.";
-        return RedirectToAction(nameof(Index));
     }
 }

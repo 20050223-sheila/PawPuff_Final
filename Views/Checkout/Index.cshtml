@@ -1,4 +1,315 @@
 @model CheckoutViewModel
-@{ViewData["Title"]="Checkout";var lines=(List<CartLine>)ViewBag.Lines;decimal subtotal=(decimal)ViewBag.Subtotal,shipping=(decimal)ViewBag.Shipping,discount=(decimal)ViewBag.Discount;}
-<h1 class="h2 mb-4">Order confirmation & payment</h1><form asp-action="Index" method="post"><div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div><div class="row g-4"><div class="col-lg-7"><section class="panel mb-4"><h2 class="h5 mb-3">1. Order summary</h2><div class="table-responsive"><table class="table"><thead><tr><th>Product</th><th>Qty</th><th>Unit price</th><th>Subtotal</th></tr></thead><tbody>@foreach(var l in lines){<tr><td>@l.Name</td><td>@l.Quantity</td><td>£@l.Price.ToString("0.00")</td><td>£@l.Subtotal.ToString("0.00")</td></tr>}</tbody></table></div><div class="summary-lines"><div><span>Items subtotal</span><strong>£@subtotal.ToString("0.00")</strong></div><div><span>Shipping</span><strong>£@shipping.ToString("0.00")</strong></div><div><span>Discount</span><strong>−£@discount.ToString("0.00")</strong></div><hr/><div class="fs-5"><span>Order total</span><strong>£@((subtotal+shipping-discount).ToString("0.00"))</strong></div></div></section><section class="panel"><h2 class="h5 mb-3">2. Shipping address</h2><label asp-for="ShippingAddress" class="form-label">Delivery address</label><textarea asp-for="ShippingAddress" class="form-control" rows="3" placeholder="Name, street, city, postcode"></textarea><span asp-validation-for="ShippingAddress" class="text-danger"></span><p class="small text-muted mt-2">Enter the delivery address for this order.</p></section></div><div class="col-lg-5"><section class="panel mb-4"><h2 class="h5 mb-3">3. Payment method</h2><div class="payment-option"><input asp-for="PaymentMethod" type="radio" value="Card" id="card" checked/><label for="card"><strong>Credit / Debit Card</strong><div class="small text-muted">Visa, Mastercard and other cards</div></label></div><div class="payment-option"><input asp-for="PaymentMethod" type="radio" value="WeChat Pay" id="wechat"/><label for="wechat"><strong>WeChat Pay</strong><div class="small text-muted">Mobile wallet</div></label></div><div class="payment-option"><input asp-for="PaymentMethod" type="radio" value="Alipay" id="alipay"/><label for="alipay"><strong>Alipay</strong><div class="small text-muted">Online wallet</div></label></div><p class="small text-muted mt-3">@if ((bool)(ViewBag.StripeConfigured ?? false)) { <text>Card payment redirects to Stripe Checkout. Use test keys and test card details only during coursework.</text> } else { <text>Stripe is not configured yet. Payment cannot proceed until a test secret key is added.</text> }</p></section><section class="panel mb-4"><h2 class="h5 mb-3">4. Order notes</h2><label asp-for="Notes" class="form-label">Optional notes</label><textarea asp-for="Notes" class="form-control" rows="3" placeholder="Delivery instructions or notes..."></textarea></section><button class="btn btn-primary btn-lg w-100" type="submit">Continue to secure payment · £@((subtotal+shipping-discount).ToString("0.00"))</button><a class="btn btn-outline-secondary w-100 mt-2" asp-controller="Cart" asp-action="Index">Back to cart</a></div></div></form>
-@section Scripts{<partial name="_ValidationScriptsPartial" />}
+
+@{
+    ViewData["Title"] = "Checkout";
+
+    var lines = (List<CartLine>)ViewBag.Lines;
+
+    decimal subtotal = (decimal)ViewBag.Subtotal;
+    decimal shipping = (decimal)ViewBag.Shipping;
+    decimal discount = (decimal)ViewBag.Discount;
+
+    decimal total = subtotal + shipping - discount;
+}
+
+<div class="paw-checkout-page">
+
+    <!-- Page heading -->
+    <div class="mb-4">
+        <span class="paw-cart-eyebrow">
+            🐾 PAWPUFF CHECKOUT
+        </span>
+
+        <h1 class="h2 fw-bold mt-2 mb-2">
+            Order confirmation &amp; payment
+        </h1>
+
+        <p class="text-muted mb-0">
+            Review your order and complete your demo checkout.
+        </p>
+    </div>
+
+    <!-- Demo notice -->
+    <div class="paw-demo-notice mb-4">
+        <strong>Demo Payment Only</strong>
+
+        <p class="mb-0 mt-1">
+            This is a simulated checkout for a coursework project.
+            No real money will be charged.
+            Please do not enter real card details.
+        </p>
+    </div>
+
+    <form asp-controller="Checkout"
+          asp-action="DemoPay"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3">
+        </div>
+
+        <div class="row g-4">
+
+            <!-- Left column -->
+            <div class="col-lg-7">
+
+                <!-- 1. Order summary -->
+                <section class="panel mb-4">
+
+                    <h2 class="h5 fw-bold mb-3">
+                        1. Order summary
+                    </h2>
+
+                    <div class="table-responsive">
+
+                        <table class="table align-middle">
+
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Unit price</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var l in lines)
+                                {
+                                    <tr>
+                                        <td>@l.Name</td>
+
+                                        <td>@l.Quantity</td>
+
+                                        <td>
+                                            £@l.Price.ToString("0.00")
+                                        </td>
+
+                                        <td class="fw-semibold">
+                                            £@l.Subtotal.ToString("0.00")
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div class="summary-lines">
+
+                        <div>
+                            <span>Items subtotal</span>
+
+                            <strong>
+                                £@subtotal.ToString("0.00")
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Shipping</span>
+
+                            <strong>
+                                £@shipping.ToString("0.00")
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>Discount</span>
+
+                            <strong>
+                                −£@discount.ToString("0.00")
+                            </strong>
+                        </div>
+
+                        <hr />
+
+                        <div class="fs-5">
+                            <span class="fw-bold">
+                                Order total
+                            </span>
+
+                            <strong style="color:#315a41;">
+                                £@total.ToString("0.00")
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- 2. Shipping address -->
+                <section class="panel mb-4">
+
+                    <h2 class="h5 fw-bold mb-3">
+                        2. Shipping address
+                    </h2>
+
+                    <label asp-for="ShippingAddress"
+                           class="form-label fw-semibold">
+                        Delivery address
+                    </label>
+
+                    <textarea asp-for="ShippingAddress"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Full name, street address, city, postcode"></textarea>
+
+                    <span asp-validation-for="ShippingAddress"
+                          class="text-danger small">
+                    </span>
+
+                    <p class="small text-muted mt-2 mb-0">
+                        Enter the delivery address for this demo order.
+                    </p>
+
+                </section>
+
+            </div>
+
+            <!-- Right column -->
+            <div class="col-lg-5">
+
+                <!-- 3. Payment method -->
+                <section class="panel mb-4">
+
+                    <h2 class="h5 fw-bold mb-3">
+                        3. Payment method
+                    </h2>
+
+                    <p class="small text-muted">
+                        Choose a payment method.
+                        All options are simulated.
+                    </p>
+
+                    <!-- Card -->
+                    <div class="payment-option">
+
+                        <input asp-for="PaymentMethod"
+                               type="radio"
+                               value="Card"
+                               id="card"
+                               checked="@(Model.PaymentMethod == null || Model.PaymentMethod == "Card")" />
+
+                        <label for="card" class="w-100">
+                            <strong>
+                                💳 Credit / Debit Card
+                            </strong>
+
+                            <div class="small text-muted">
+                                Simulated card payment
+                            </div>
+                        </label>
+
+                    </div>
+
+                    <!-- WeChat -->
+                    <div class="payment-option">
+
+                        <input asp-for="PaymentMethod"
+                               type="radio"
+                               value="WeChat Pay"
+                               id="wechat"
+                               checked="@(Model.PaymentMethod == "WeChat Pay")" />
+
+                        <label for="wechat" class="w-100">
+                            <strong>
+                                WeChat Pay
+                            </strong>
+
+                            <div class="small text-muted">
+                                Simulated mobile wallet payment
+                            </div>
+                        </label>
+
+                    </div>
+
+                    <!-- Alipay -->
+                    <div class="payment-option">
+
+                        <input asp-for="PaymentMethod"
+                               type="radio"
+                               value="Alipay"
+                               id="alipay"
+                               checked="@(Model.PaymentMethod == "Alipay")" />
+
+                        <label for="alipay" class="w-100">
+                            <strong>
+                                Alipay
+                            </strong>
+
+                            <div class="small text-muted">
+                                Simulated online wallet payment
+                            </div>
+                        </label>
+
+                    </div>
+
+                    <span asp-validation-for="PaymentMethod"
+                          class="text-danger small">
+                    </span>
+
+                    <p class="small text-muted mt-3 mb-0">
+                        No real payment will be processed,
+                        regardless of the selected method.
+                    </p>
+
+                </section>
+
+                <!-- 4. Order notes -->
+                <section class="panel mb-4">
+
+                    <h2 class="h5 fw-bold mb-3">
+                        4. Order notes
+                    </h2>
+
+                    <label asp-for="Notes"
+                           class="form-label">
+                        Optional notes
+                    </label>
+
+                    <textarea asp-for="Notes"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Delivery instructions or notes..."></textarea>
+
+                </section>
+
+                <!-- Confirm demo payment -->
+                <button type="submit"
+                        class="btn btn-paw btn-lg w-100">
+
+                    Confirm Demo Payment ·
+                    £@total.ToString("0.00")
+
+                </button>
+
+                <p class="small text-muted text-center mt-2">
+                    Demo checkout only. No real money will be charged.
+                </p>
+
+                <!-- Back to cart -->
+                <a class="btn btn-outline-secondary w-100 mt-2"
+                   asp-controller="Cart"
+                   asp-action="Index">
+
+                    ← Back to cart
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

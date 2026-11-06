@@ -1,1 +1,1149 @@
 :root{--paw-ink:#243044;--paw-primary:#5c6ac4;--paw-soft:#f5f6fc;--paw-accent:#f6c979}body{color:var(--paw-ink);background:#fff;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}.navbar-brand{letter-spacing:-.04em;color:var(--paw-primary)!important;font-size:1.45rem}.btn-primary{background:var(--paw-primary);border-color:var(--paw-primary)}.btn-primary:hover{background:#4856ac;border-color:#4856ac}.hero{background:linear-gradient(120deg,#f4f0ff,#fff4df);min-height:300px;display:flex;align-items:center}.product-card{border:1px solid #edf0f5;border-radius:1rem;overflow:hidden;transition:transform .2s,box-shadow .2s}.product-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px #24304412}.product-card img{height:180px;object-fit:cover;background:#f4f5f8}.detail-image{width:100%;max-height:520px;object-fit:cover}.filter-panel,.panel,.form-panel,.auth-card,.summary-card,.empty-state{border:1px solid #e8ebf2;border-radius:1rem;padding:1.5rem;background:#fff}.auth-card{max-width:460px;margin-top:2rem}.form-panel{max-width:760px}.summary-card{width:min(100%,390px)}.summary-lines>div{display:flex;justify-content:space-between;gap:1rem;margin:.65rem 0}.payment-option{display:flex;gap:.8rem;align-items:flex-start;padding:1rem;border:1px solid #e7eaf1;border-radius:.75rem;margin-bottom:.7rem}.payment-option input{margin-top:.3rem}.payment-option:has(input:checked){border-color:var(--paw-primary);background:#f7f7ff}.cart-thumb{width:68px;height:60px;object-fit:cover;border-radius:.65rem;background:#f3f4f7}.stat-card{padding:1.2rem;border-radius:1rem;background:var(--paw-soft);height:100%;display:flex;flex-direction:column;gap:.5rem}.stat-card span{color:#6b7280;font-size:.9rem}.stat-card strong{font-size:1.7rem}footer{background:#fafbfe}
+
+/* ===== PawPuff Shop Design ===== */
+
+.shop-page {
+    padding-bottom: 40px;
+}
+
+.shop-hero {
+    background: linear-gradient( 120deg, #e4efe5, #f6f3e9 );
+    border-radius: 22px;
+    padding: 38px 42px;
+    color: #284d3a;
+}
+
+.shop-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #5e8b6b;
+}
+
+.filter-panel {
+    background: #ffffff;
+    padding: 22px;
+    border-radius: 18px;
+    border: 1px solid #e7ece7;
+    box-shadow: 0 5px 20px rgba(0,0,0,.035);
+}
+
+.btn-pawpuff {
+    background: #47795b;
+    color: #fff;
+    border: 1px solid #47795b;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: 600;
+}
+
+    .btn-pawpuff:hover {
+        background: #315a41;
+        border-color: #315a41;
+        color: #fff;
+    }
+
+.paw-product-card {
+    border: 1px solid #e8ece7;
+    border-radius: 17px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 3px 14px rgba(0,0,0,.035);
+    transition: transform .2s, box-shadow .2s;
+}
+
+    .paw-product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(0,0,0,.09);
+    }
+
+.product-image-link {
+    text-decoration: none;
+}
+
+.paw-product-image {
+    width: 100%;
+    height: 220px;
+    background: #f6f7f3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+    .paw-product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 14px;
+        transition: transform .25s;
+    }
+
+.paw-product-card:hover .paw-product-image img {
+    transform: scale(1.045);
+}
+
+.paw-category-badge,
+.paw-pet-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 9px;
+    border-radius: 20px;
+}
+
+.paw-category-badge {
+    background: #e8f2e9;
+    color: #39714e;
+}
+
+.paw-pet-badge {
+    background: #f7f0e5;
+    color: #916f40;
+}
+
+.paw-product-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.45;
+    min-height: 44px;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+    .paw-product-title a {
+        color: #263c30;
+        text-decoration: none;
+    }
+
+        .paw-product-title a:hover {
+            color: #47795b;
+        }
+
+.paw-product-description {
+    font-size: 12px;
+    color: #7a837b;
+    line-height: 1.55;
+    min-height: 55px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.paw-price {
+    font-size: 19px;
+    font-weight: 800;
+    color: #294e38;
+}
+
+.paw-stock {
+    color: #4b9360;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.pagination .page-link {
+    color: #47795b;
+    border-color: #e3e9e2;
+}
+
+.pagination .page-item.active .page-link {
+    background: #47795b;
+    border-color: #47795b;
+    color: #fff;
+}
+
+@media (max-width: 576px) {
+    .shop-hero {
+        padding: 24px;
+    }
+
+    .paw-product-image {
+        height: 160px;
+    }
+
+    .paw-product-card .card-body {
+        padding: 12px;
+    }
+
+    .paw-price {
+        font-size: 16px;
+    }
+}
+
+
+/* ===== PawPuff Final Theme Overrides ===== */
+/* Keep existing styles; override old colours and image sizes. */
+
+:root {
+    --paw-ink: #263c30;
+    --paw-primary: #47795b;
+    --paw-soft: #edf5eb;
+    --paw-accent: #f3d9ac;
+}
+
+body,
+body.paw-body {
+    color: var(--paw-ink);
+    background: #fbfaf6;
+}
+
+.navbar-brand,
+.paw-brand {
+    color: #47795b !important;
+}
+
+.btn-primary,
+.btn-paw,
+.btn-pawpuff {
+    background-color: #47795b;
+    border-color: #47795b;
+    color: white;
+}
+
+    .btn-primary:hover,
+    .btn-paw:hover,
+    .btn-pawpuff:hover {
+        background-color: #315a41;
+        border-color: #315a41;
+        color: white;
+    }
+
+/* Home hero: replace old purple background */
+.hero {
+    background: linear-gradient( 115deg, #e4efe5 0%, #f5f5e9 55%, #fff1df 100% );
+    border-radius: 22px;
+    min-height: 280px;
+    padding: 30px;
+}
+
+/* Home popular product cards */
+.product-card {
+    border: 1px solid #e4eae3;
+    border-radius: 16px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 3px 12px rgba(0,0,0,.035);
+}
+
+    /* Limit image height on home product cards */
+    .product-card img,
+    .product-card .card-img-top {
+        display: block;
+        width: 100%;
+        height: 180px !important;
+        max-height: 180px !important;
+        object-fit: contain !important;
+        background: #f8faf6;
+        padding: 12px;
+    }
+
+    /* Avoid overly long text in home cards */
+    .product-card .card-body h2,
+    .product-card .card-body h3,
+    .product-card .card-body h5,
+    .product-card .card-body h6 {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+    }
+
+/* Shop product images */
+.paw-shop-photo,
+.paw-product-image {
+    height: 185px !important;
+    max-height: 185px !important;
+    overflow: hidden;
+}
+
+    .paw-shop-photo img,
+    .paw-product-image img {
+        display: block;
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 185px !important;
+        object-fit: contain !important;
+        padding: 12px;
+    }
+
+/* Hide long descriptions only in product list cards */
+.product-card .paw-product-description,
+.paw-product-card .paw-product-description,
+.paw-shop-card .paw-product-description {
+    display: none;
+}
+
+/* Consistent pagination */
+.pagination .page-link {
+    color: #47795b;
+    border-color: #dfe8dd;
+}
+
+.pagination .page-item.active .page-link {
+    background: #47795b;
+    border-color: #47795b;
+    color: white;
+}
+
+/* Footer */
+footer,
+.paw-footer {
+    background: #e8f0e6;
+    color: #44614b;
+}
+
+@media (max-width: 576px) {
+    .hero {
+        min-height: auto;
+        padding: 24px;
+    }
+
+    .product-card img,
+    .product-card .card-img-top,
+    .paw-shop-photo,
+    .paw-shop-photo img,
+    .paw-product-image,
+    .paw-product-image img {
+        height: 145px !important;
+        max-height: 145px !important;
+    }
+}
+
+
+/* ===== PawPuff Home Page ===== */
+
+.paw-home {
+    padding-bottom: 20px;
+}
+
+.paw-home-hero {
+    background: linear-gradient( 115deg, #e2eee2 0%, #eff4e8 55%, #fff0dd 100% );
+    border-radius: 24px;
+    padding: 55px 50px;
+    color: #263c30;
+}
+
+.paw-home-label,
+.paw-home-section-label {
+    color: #47795b;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.paw-home-hero h1 {
+    max-width: 650px;
+    line-height: 1.15;
+}
+
+.paw-home-hero p {
+    color: #55705d;
+    max-width: 560px;
+}
+
+.paw-home-decoration {
+    width: 220px;
+    height: 220px;
+    margin: auto;
+    border-radius: 50%;
+    background: rgba(255,255,255,.55);
+    border: 2px solid rgba(255,255,255,.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #47795b;
+    transform: rotate(5deg);
+}
+
+.paw-home-paw {
+    font-size: 82px;
+    line-height: 1.3;
+}
+
+.paw-home-category {
+    min-height: 145px;
+    border-radius: 18px;
+    padding: 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    text-decoration: none;
+    transition: transform .2s, box-shadow .2s;
+}
+
+    .paw-home-category:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,.06);
+    }
+
+.paw-cat-category {
+    background: #f5ebdf;
+    color: #604c38;
+}
+
+.paw-dog-category {
+    background: #e2eee2;
+    color: #315a41;
+}
+
+.paw-home-category-icon {
+    font-size: 44px;
+    flex-shrink: 0;
+}
+
+.paw-home-category p {
+    font-size: 13px;
+    opacity: .8;
+}
+
+.paw-home-category-arrow {
+    margin-left: auto;
+    font-size: 26px;
+}
+
+.paw-home-view-all {
+    color: #47795b;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+    .paw-home-view-all:hover {
+        color: #315a41;
+        text-decoration: underline;
+    }
+
+.paw-home-product {
+    border: 1px solid #e5ebe3;
+    border-radius: 17px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(0,0,0,.035);
+    transition: transform .2s, box-shadow .2s;
+}
+
+    .paw-home-product:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px rgba(0,0,0,.08);
+    }
+
+.paw-home-product-image {
+    height: 180px;
+    max-height: 180px;
+    background: #f8faf6;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .paw-home-product-image img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        max-height: 180px;
+        object-fit: contain;
+        padding: 12px;
+    }
+
+.paw-home-product-category {
+    font-size: 12px;
+    color: #728375;
+}
+
+.paw-home-product-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.45;
+    height: 44px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+    .paw-home-product-title a {
+        color: #263c30;
+        text-decoration: none;
+    }
+
+        .paw-home-product-title a:hover {
+            color: #47795b;
+        }
+
+.paw-home-product-price {
+    color: #315a41;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.paw-home-bottom {
+    background: #e8f0e6;
+    border-radius: 22px;
+    padding: 48px 24px;
+    color: #315a41;
+}
+
+.paw-home-bottom-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.paw-home-bottom p {
+    color: #607966;
+}
+
+@media (max-width: 576px) {
+    .paw-home-hero {
+        padding: 30px 24px;
+    }
+
+    .paw-home-decoration {
+        width: 145px;
+        height: 145px;
+    }
+
+    .paw-home-paw {
+        font-size: 55px;
+    }
+
+    .paw-home-category {
+        padding: 20px;
+        min-height: 120px;
+    }
+
+    .paw-home-product-image {
+        height: 145px;
+        max-height: 145px;
+    }
+
+        .paw-home-product-image img {
+            max-height: 145px;
+        }
+}
+
+/* ===== PawPuff Product Details ===== */
+
+.paw-detail-page {
+    padding-bottom: 35px;
+}
+
+    .paw-detail-page .breadcrumb a {
+        color: #47795b;
+        text-decoration: none;
+    }
+
+.paw-detail-image-box {
+    width: 100%;
+    min-height: 360px;
+    max-height: 480px;
+    background: #f7faf5;
+    border: 1px solid #e6ece4;
+    border-radius: 22px;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.paw-detail-image {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+}
+
+.paw-detail-image-caption {
+    text-align: center;
+    color: #78907b;
+    font-size: 13px;
+}
+
+.paw-detail-info {
+    padding-top: 5px;
+}
+
+.paw-detail-badge {
+    display: inline-block;
+    background: #e7f1e6;
+    color: #47795b;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.paw-detail-title {
+    font-size: clamp(25px, 3vw, 38px);
+    font-weight: 800;
+    line-height: 1.25;
+    color: #263c30;
+}
+
+.paw-detail-price {
+    color: #315a41;
+    font-size: 34px;
+    font-weight: 800;
+}
+
+.paw-detail-stock {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+    .paw-detail-stock.available {
+        color: #34744b;
+        background: #eaf5e9;
+    }
+
+    .paw-detail-stock.unavailable {
+        color: #b04a4a;
+        background: #fff0f0;
+    }
+
+.paw-detail-stock-dot {
+    width: 8px;
+    height: 8px;
+    background: #4da566;
+    border-radius: 50%;
+}
+
+.paw-detail-divider {
+    border-color: #e3e9e1;
+    margin: 20px 0;
+}
+
+.paw-detail-description-text {
+    color: #647467;
+    line-height: 1.8;
+    font-size: 15px;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.paw-detail-buy-box {
+    background: #f2f7ef;
+    border: 1px solid #e1ebdf;
+    padding: 24px;
+    border-radius: 18px;
+}
+
+.paw-detail-quantity {
+    height: 48px;
+    text-align: center;
+}
+
+.paw-detail-note {
+    color: #728474;
+    font-size: 12px;
+}
+
+.paw-detail-back {
+    color: #47795b;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+    .paw-detail-back:hover {
+        color: #315a41;
+        text-decoration: underline;
+    }
+
+@media (max-width: 576px) {
+    .paw-detail-image-box {
+        min-height: 260px;
+        max-height: 340px;
+        padding: 15px;
+    }
+
+    .paw-detail-image {
+        max-height: 300px;
+    }
+
+    .paw-detail-buy-box {
+        padding: 17px;
+    }
+}
+
+/* ===== PawPuff Shopping Cart ===== */
+
+.paw-cart-page {
+    padding-bottom: 35px;
+}
+
+.paw-cart-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 20px;
+}
+
+.paw-cart-eyebrow {
+    color: #47795b;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.paw-cart-continue {
+    color: #47795b;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+    .paw-cart-continue:hover {
+        color: #315a41;
+        text-decoration: underline;
+    }
+
+.paw-cart-empty {
+    background: #fff;
+    border: 1px solid #e5ebe3;
+    border-radius: 22px;
+    padding: 65px 20px;
+}
+
+.paw-cart-empty-icon {
+    font-size: 70px;
+}
+
+.paw-cart-panel {
+    background: #fff;
+    border: 1px solid #e5ebe3;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.paw-cart-panel-heading {
+    padding: 22px 25px;
+    border-bottom: 1px solid #edf0ea;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.paw-cart-count {
+    background: #e8f2e9;
+    color: #47795b;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.paw-cart-item {
+    display: flex;
+    gap: 18px;
+    padding: 25px;
+    border-bottom: 1px solid #edf0ea;
+}
+
+    .paw-cart-item:last-child {
+        border-bottom: none;
+    }
+
+.paw-cart-image {
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
+    background: #f7faf5;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+    .paw-cart-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 10px;
+    }
+
+.paw-cart-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.paw-cart-product-name {
+    color: #263c30;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.45;
+    margin-bottom: 7px;
+    overflow-wrap: anywhere;
+}
+
+.paw-cart-unit-price {
+    color: #647467;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.paw-cart-stock {
+    color: #47795b;
+    font-size: 12px;
+    margin-bottom: 14px;
+}
+
+.paw-cart-update-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+    .paw-cart-update-form input {
+        width: 75px;
+        text-align: center;
+    }
+
+.paw-cart-item-end {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.paw-cart-line-total {
+    font-size: 18px;
+    font-weight: 800;
+    color: #315a41;
+}
+
+.paw-cart-remove {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #b85c5c;
+    font-size: 13px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+    .paw-cart-remove:hover {
+        color: #8e3434;
+    }
+
+.paw-cart-summary {
+    background: #fff;
+    border: 1px solid #e5ebe3;
+    border-radius: 20px;
+    padding: 26px;
+    position: sticky;
+    top: 95px;
+}
+
+.paw-cart-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 15px;
+    margin-bottom: 18px;
+    font-size: 14px;
+}
+
+.paw-cart-shipping-note {
+    background: #eef5ea;
+    color: #47795b;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.paw-cart-summary hr {
+    border-color: #e3e9e1;
+    margin: 22px 0;
+}
+
+.paw-cart-summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+    .paw-cart-summary-total strong {
+        font-size: 24px;
+        color: #315a41;
+    }
+
+.paw-cart-summary-caption {
+    text-align: center;
+    font-size: 12px;
+    color: #819083;
+    margin: 14px 0 0;
+}
+
+@media (max-width: 576px) {
+    .paw-cart-heading {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .paw-cart-item {
+        gap: 12px;
+        padding: 15px;
+        flex-wrap: wrap;
+    }
+
+    .paw-cart-image {
+        width: 80px;
+        height: 80px;
+    }
+
+    .paw-cart-item-end {
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .paw-cart-summary {
+        position: static;
+    }
+}
+
+/* ===== PawPuff Demo Checkout ===== */
+
+.paw-demo-notice {
+    background: #eaf3e8;
+    border: 1px solid #d2e6d0;
+    border-radius: 14px;
+    padding: 15px 18px;
+    color: #315a41;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.payment-option {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: #fff;
+    border: 1px solid #e1e9df;
+    border-radius: 13px;
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+}
+
+    .payment-option:has(input:checked) {
+        background: #eff6ed;
+        border-color: #47795b;
+    }
+
+    .payment-option input {
+        accent-color: #47795b;
+        margin-top: 5px;
+    }
+
+.panel {
+    border: 1px solid #e5ebe3;
+    border-radius: 18px;
+    background: #fff;
+    padding: 24px;
+}
+
+.summary-lines .fs-5 strong {
+    color: #315a41;
+}
+
+/* ===== PawPuff Payment Success ===== */
+
+.paw-success-page {
+    display: flex;
+    justify-content: center;
+    padding: 35px 0 65px;
+}
+
+.paw-success-card {
+    width: 100%;
+    max-width: 650px;
+    padding: 40px;
+    background: #fff;
+    border: 1px solid #e5ebe3;
+    border-radius: 24px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(35, 65, 45, 0.06);
+}
+
+.paw-success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 22px;
+    border-radius: 50%;
+    background: #e5f3e6;
+    color: #47795b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 42px;
+    font-weight: 800;
+}
+
+.paw-success-eyebrow {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #47795b;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.paw-success-title {
+    color: #263c30;
+    font-size: clamp(26px, 4vw, 36px);
+    font-weight: 800;
+    margin-bottom: 14px;
+}
+
+.paw-success-subtitle {
+    color: #738175;
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 460px;
+    margin: 0 auto 20px;
+}
+
+.paw-success-status {
+    display: inline-block;
+    background: #e6f3e7;
+    color: #34744b;
+    padding: 9px 17px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.paw-success-demo-note {
+    color: #8a968b;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 26px;
+}
+
+.paw-success-summary {
+    background: #f7faf5;
+    border: 1px solid #e4ede2;
+    border-radius: 18px;
+    padding: 25px;
+    text-align: left;
+    margin-bottom: 25px;
+}
+
+.paw-success-summary-title {
+    color: #263c30;
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.paw-success-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+    .paw-success-row span,
+    .paw-success-address > span {
+        color: #758477;
+    }
+
+    .paw-success-row strong {
+        color: #263c30;
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+
+    .paw-success-row .paw-success-paid {
+        color: #34744b;
+    }
+
+.paw-success-address {
+    font-size: 14px;
+    margin-top: 20px;
+}
+
+.paw-success-address-value {
+    margin-top: 8px;
+    color: #263c30;
+    font-weight: 600;
+    line-height: 1.6;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.paw-success-divider {
+    border-color: #dce7da;
+    margin: 22px 0;
+}
+
+.paw-success-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #263c30;
+}
+
+    .paw-success-total strong {
+        color: #315a41;
+        font-size: 28px;
+    }
+
+.paw-success-button {
+    width: 100%;
+    max-width: 330px;
+    padding: 13px 20px;
+    font-weight: 700;
+}
+
+.paw-success-footer-note {
+    color: #8a968b;
+    font-size: 12px;
+    margin: 20px 0 0;
+}
+
+@media (max-width: 576px) {
+    .paw-success-page {
+        padding: 15px 0 35px;
+    }
+
+    .paw-success-card {
+        padding: 25px 18px;
+    }
+
+    .paw-success-summary {
+        padding: 18px;
+    }
+
+    .paw-success-row {
+        gap: 12px;
+    }
+
+    .paw-success-total strong {
+        font-size: 23px;
+    }
+}

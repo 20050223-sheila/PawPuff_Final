@@ -1,3 +1,97 @@
 @model Order
-@{ViewData["Title"]="Order status";}
-<div class="text-center py-5"><div class="display-2">🐾</div><h1 class="h2 mt-3">Thank you for your order!</h1><p class="text-muted">Your payment status has been checked with the payment provider.</p><div class="summary-card mx-auto text-start mt-4"><p><strong>Order number:</strong> #@Model.Id</p><p><strong>Status:</strong> @Model.Status</p><p><strong>Payment method:</strong> @Model.PaymentMethod</p><p><strong>Delivery address:</strong> @Model.ShippingAddress</p><hr/><p class="fs-5"><strong>Total: £@Model.Total.ToString("0.00")</strong></p></div><a class="btn btn-primary mt-4" asp-controller="Products" asp-action="Index">Continue shopping</a></div>
+
+@{
+    ViewData["Title"] = "Order successful";
+}
+
+<div class="paw-success-page">
+
+    <div class="paw-success-card">
+
+        <!-- Success icon -->
+        <div class="paw-success-icon">
+            ✓
+        </div>
+
+        <div class="paw-success-eyebrow">
+            🐾 PAWPUFF
+        </div>
+
+        <h1 class="paw-success-title">
+            Thank you for your order!
+        </h1>
+
+        <p class="paw-success-subtitle">
+            Your demo order has been placed successfully.
+            Your furry friend has something to look forward to!
+        </p>
+
+        <!-- Demo payment status -->
+        <div class="paw-success-status">
+            ✓ Demo payment completed
+        </div>
+
+        <p class="paw-success-demo-note">
+            This is a simulated payment for a coursework project.
+            No real money has been charged.
+        </p>
+
+        <!-- Order details -->
+        <div class="paw-success-summary">
+
+            <h2 class="paw-success-summary-title">
+                Order details
+            </h2>
+
+            <div class="paw-success-row">
+                <span>Order number</span>
+                <strong>#@Model.Id</strong>
+            </div>
+
+            <div class="paw-success-row">
+                <span>Order status</span>
+                <strong class="paw-success-paid">
+                    @Model.Status
+                </strong>
+            </div>
+
+            <div class="paw-success-row">
+                <span>Payment method</span>
+                <strong>@Model.PaymentMethod</strong>
+            </div>
+
+            <div class="paw-success-address">
+                <span>Delivery address</span>
+
+                <div class="paw-success-address-value">
+                    @Model.ShippingAddress
+                </div>
+            </div>
+
+            <hr class="paw-success-divider" />
+
+            <div class="paw-success-total">
+                <span>Order total</span>
+                <strong>
+                    £@Model.Total.ToString("0.00")
+                </strong>
+            </div>
+
+        </div>
+
+        <!-- Continue shopping -->
+        <a class="btn btn-paw btn-lg paw-success-button"
+           asp-controller="Products"
+           asp-action="Index">
+
+            🛍 Continue shopping
+
+        </a>
+
+        <p class="paw-success-footer-note">
+            Happy pets, happy homes. Thank you for choosing PawPuff!
+        </p>
+
+    </div>
+
+</div>

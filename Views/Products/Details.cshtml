@@ -1,3 +1,182 @@
 @model Product
-@{ViewData["Title"]=Model.Name;}
-<div class="row g-5"><div class="col-md-6"><img class="img-fluid rounded-4 detail-image" src="@Model.ImageUrl" alt="@Model.Name"/></div><div class="col-md-6"><span class="text-muted">@Model.PetType / @Model.Category</span><h1 class="display-6 fw-bold mt-2">@Model.Name</h1><p class="display-6 text-primary">£@Model.Price.ToString("0.00")</p><p>@Model.Description</p><p class="small text-muted">Available stock: @Model.Stock</p><form asp-controller="Cart" asp-action="Add" method="post" class="d-flex gap-2 align-items-center"><input type="hidden" name="productId" value="@Model.Id"/><label for="quantity">Qty</label><input id="quantity" class="form-control" style="max-width:100px" type="number" name="quantity" min="1" max="@Model.Stock" value="1"/><button class="btn btn-primary" disabled="@(Model.Stock<1)">Add to cart</button></form><a class="btn btn-link mt-3 ps-0" asp-action="Index">← Back to shop</a></div></div>
+
+@{
+    ViewData["Title"] = Model.Name;
+
+    var photo = string.IsNullOrWhiteSpace(Model.ImageUrl)
+        ? Url.Content("~/images/pawpuff-placeholder.svg")
+        : Model.ImageUrl;
+}
+
+<div class="paw-detail-page">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a asp-controller="Home"
+                   asp-action="Index">
+                    Home
+                </a>
+            </li>
+
+            <li class="breadcrumb-item">
+                <a asp-controller="Products"
+                   asp-action="Index">
+                    Shop
+                </a>
+            </li>
+
+            <li class="breadcrumb-item active"
+                aria-current="page">
+                @Model.Name
+            </li>
+        </ol>
+    </nav>
+
+    <!-- Product detail -->
+    <div class="row g-4 g-lg-5">
+
+        <!-- Left: product image -->
+        <div class="col-lg-6">
+
+            <div class="paw-detail-image-box">
+
+                <img src="@photo"
+                     alt="@Model.Name"
+                     class="paw-detail-image"
+                     onerror="this.onerror=null;this.src='/images/pawpuff-placeholder.svg';" />
+
+            </div>
+
+            <div class="paw-detail-image-caption mt-3">
+                🐾 Carefully selected for happy pets
+            </div>
+
+        </div>
+
+        <!-- Right: product information -->
+        <div class="col-lg-6">
+
+            <div class="paw-detail-info">
+
+                <div class="d-flex gap-2 flex-wrap mb-3">
+                    <span class="paw-detail-badge">
+                        @Model.PetType
+                    </span>
+
+                    <span class="paw-detail-badge">
+                        @Model.Category
+                    </span>
+                </div>
+
+                <h1 class="paw-detail-title">
+                    @Model.Name
+                </h1>
+
+                <div class="paw-detail-price my-3">
+                    £@Model.Price.ToString("0.00")
+                </div>
+
+                @if (Model.Stock > 0)
+                {
+                    <div class="paw-detail-stock available mb-4">
+                        <span class="paw-detail-stock-dot"></span>
+                        In stock · @Model.Stock available
+                    </div>
+                }
+                else
+                {
+                    <div class="paw-detail-stock unavailable mb-4">
+                        Out of stock
+                    </div>
+                }
+
+                <hr class="paw-detail-divider" />
+
+                <!-- Full description -->
+                <div class="paw-detail-description mb-4">
+
+                    <h2 class="h5 fw-bold mb-3">
+                        Product description
+                    </h2>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Description))
+                    {
+                        <p class="paw-detail-description-text">
+                            @Model.Description
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="text-muted">
+                            Product details are not available yet.
+                        </p>
+                    }
+
+                </div>
+
+                <hr class="paw-detail-divider" />
+
+                <!-- Add to cart: preserve original form fields -->
+                <div class="paw-detail-buy-box mt-4">
+
+                    <h2 class="h5 fw-bold mb-3">
+                        Ready to make their day?
+                    </h2>
+
+                    <form asp-controller="Cart"
+                          asp-action="Add"
+                          method="post">
+
+                        <input type="hidden"
+                               name="productId"
+                               value="@Model.Id" />
+
+                        <div class="row g-3 align-items-end">
+
+                            <div class="col-4 col-sm-3">
+
+                                <label for="quantity"
+                                       class="form-label fw-semibold">
+                                    Quantity
+                                </label>
+
+                                <input id="quantity"
+                                       class="form-control paw-detail-quantity"
+                                       type="number"
+                                       name="quantity"
+                                       min="1"
+                                       max="@Model.Stock"
+                                       value="1"
+                                       required
+                                       disabled="@(Model.Stock < 1)" />
+                            </div>
+
+                            <div class="col-8 col-sm-9 d-grid">
+
+                                <button type="submit"
+                                        class="btn btn-paw btn-lg"
+                                        disabled="@(Model.Stock < 1)">
+                                    🛒 Add to cart
+                                </button>
+
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="paw-detail-note mt-3">
+                        Secure checkout · Simple shopping experience
+                    </div>
+                </div>
+
+                <a class="paw-detail-back d-inline-block mt-4"
+                   asp-controller="Products"
+                   asp-action="Index">
+                    ← Back to shop
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,232 @@
 @model List<CartLine>
-@{ViewData["Title"]="Your cart";}
-<h1 class="h2 mb-4">Your shopping cart</h1>
-@if(!Model.Any()){<div class="empty-state text-center p-5"><div class="display-4">🛒</div><h2 class="h4 mt-3">Your cart is waiting for some pawsome finds.</h2><a class="btn btn-primary mt-3" asp-controller="Products" asp-action="Index">Continue shopping</a></div>}else{<div class="table-responsive"><table class="table align-middle"><thead><tr><th>Product</th><th>Unit price</th><th>Quantity</th><th>Subtotal</th><th></th></tr></thead><tbody>@foreach(var line in Model){<tr><td><div class="d-flex align-items-center gap-3"><img class="cart-thumb" src="@line.ImageUrl" alt=""/><div><strong>@line.Name</strong><div class="small text-muted">Stock: @line.Stock</div></div></div></td><td>£@line.Price.ToString("0.00")</td><td><form asp-action="Update" method="post" class="d-flex gap-2"><input type="hidden" name="productId" value="@line.ProductId"/><input class="form-control" style="max-width:85px" type="number" min="1" max="@line.Stock" name="quantity" value="@line.Quantity"/><button class="btn btn-outline-secondary btn-sm">Update</button></form></td><td class="fw-bold">£@line.Subtotal.ToString("0.00")</td><td><form asp-action="Remove" method="post"><input type="hidden" name="productId" value="@line.ProductId"/><button class="btn btn-link text-danger">Remove</button></form></td></tr>}</tbody></table></div><div class="d-flex justify-content-end"><div class="summary-card"><div class="d-flex justify-content-between gap-5"><span>Selected items total</span><strong>£@Model.Sum(x=>x.Subtotal).ToString("0.00")</strong></div><p class="small text-muted mt-2">Shipping is calculated at checkout. Free shipping on orders of £50 or more.</p><form asp-action="Checkout" method="post"><button class="btn btn-primary w-100">Proceed to checkout</button></form></div></div>}
+
+@{
+    ViewData["Title"] = "Your cart";
+
+    var subtotal = Model.Sum(x => x.Subtotal);
+    var itemCount = Model.Sum(x => x.Quantity);
+}
+
+<div class="paw-cart-page">
+
+    <!-- Page heading -->
+    <div class="paw-cart-heading mb-4">
+
+        <div>
+            <span class="paw-cart-eyebrow">
+                🐾 YOUR PAWPUFF BASKET
+            </span>
+
+            <h1 class="h2 fw-bold mt-2 mb-2">
+                Your shopping cart
+            </h1>
+
+            <p class="text-muted mb-0">
+                Your favourite finds, all in one place.
+            </p>
+        </div>
+
+        <a class="paw-cart-continue"
+           asp-controller="Products"
+           asp-action="Index">
+            ← Continue shopping
+        </a>
+
+    </div>
+
+    @if (!Model.Any())
+    {
+        <!-- Empty cart -->
+        <div class="paw-cart-empty text-center">
+
+            <div class="paw-cart-empty-icon">
+                🛒
+            </div>
+
+            <h2 class="h4 fw-bold mt-3">
+                Your cart is waiting for some pawsome finds.
+            </h2>
+
+            <p class="text-muted">
+                Discover something special for your furry friend.
+            </p>
+
+            <a class="btn btn-paw btn-lg mt-3"
+               asp-controller="Products"
+               asp-action="Index">
+                Explore the shop
+            </a>
+
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            <!-- Left: cart products -->
+            <div class="col-lg-8">
+
+                <div class="paw-cart-panel">
+
+                    <div class="paw-cart-panel-heading">
+                        <h2 class="h5 fw-bold mb-0">
+                            Cart items
+                        </h2>
+
+                        <span class="paw-cart-count">
+                            @itemCount item(s)
+                        </span>
+                    </div>
+
+                    @foreach (var line in Model)
+                    {
+                        var photo = string.IsNullOrWhiteSpace(line.ImageUrl)
+                        ? Url.Content("~/images/pawpuff-placeholder.svg")
+                        : line.ImageUrl;
+
+                        <div class="paw-cart-item">
+
+                            <!-- Product image -->
+                            <div class="paw-cart-image">
+                                <img src="@photo"
+                                     alt="@line.Name"
+                                     loading="lazy"
+                                     onerror="this.onerror=null;this.src='/images/pawpuff-placeholder.svg';" />
+                            </div>
+
+                            <!-- Product information -->
+                            <div class="paw-cart-item-info">
+
+                                <h3 class="paw-cart-product-name">
+                                    @line.Name
+                                </h3>
+
+                                <div class="paw-cart-unit-price">
+                                    £@line.Price.ToString("0.00") each
+                                </div>
+
+                                <div class="paw-cart-stock">
+                                    Stock: @line.Stock
+                                </div>
+
+                                <!-- Keep original update action -->
+                                <form asp-action="Update"
+                                      method="post"
+                                      class="paw-cart-update-form">
+
+                                    <input type="hidden"
+                                           name="productId"
+                                           value="@line.ProductId" />
+
+                                    <label class="small fw-semibold"
+                                           for="qty-@line.ProductId">
+                                        Qty
+                                    </label>
+
+                                    <input id="qty-@line.ProductId"
+                                           class="form-control form-control-sm"
+                                           type="number"
+                                           name="quantity"
+                                           min="1"
+                                           max="@line.Stock"
+                                           value="@line.Quantity"
+                                           required />
+
+                                    <button type="submit"
+                                            class="btn btn-outline-secondary btn-sm">
+                                        Update
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                            <!-- Subtotal and remove -->
+                            <div class="paw-cart-item-end">
+
+                                <div class="paw-cart-line-total">
+                                    £@line.Subtotal.ToString("0.00")
+                                </div>
+
+                                <!-- Keep original remove action -->
+                                <form asp-action="Remove"
+                                      method="post">
+
+                                    <input type="hidden"
+                                           name="productId"
+                                           value="@line.ProductId" />
+
+                                    <button type="submit"
+                                            class="paw-cart-remove">
+                                        Remove
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            </div>
+
+            <!-- Right: order summary -->
+            <div class="col-lg-4">
+
+                <div class="paw-cart-summary">
+
+                    <h2 class="h5 fw-bold mb-4">
+                        Order summary
+                    </h2>
+
+                    <div class="paw-cart-summary-row">
+                        <span>Items (@itemCount)</span>
+                        <strong>
+                            £@subtotal.ToString("0.00")
+                        </strong>
+                    </div>
+
+                    <div class="paw-cart-summary-row">
+                        <span>Shipping</span>
+                        <span class="text-muted small">
+                            Calculated at checkout
+                        </span>
+                    </div>
+
+                    <div class="paw-cart-shipping-note">
+                        🚚 Free shipping on orders of £50 or more.
+                    </div>
+
+                    <hr />
+
+                    <div class="paw-cart-summary-total">
+                        <span>Items total</span>
+                        <strong>
+                            £@subtotal.ToString("0.00")
+                        </strong>
+                    </div>
+
+                    <!-- Keep original checkout action -->
+                    <form asp-action="Checkout"
+                          method="post"
+                          class="mt-4">
+
+                        <button type="submit"
+                                class="btn btn-paw btn-lg w-100">
+                            Proceed to checkout →
+                        </button>
+
+                    </form>
+
+                    <p class="paw-cart-summary-caption">
+                        Review your order before payment.
+                    </p>
+
+                </div>
+            </div>
+
+        </div>
+    }
+
+</div>

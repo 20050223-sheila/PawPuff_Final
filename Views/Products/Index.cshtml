@@ -1,6 +1,374 @@
 @model IEnumerable<Product>
-@{ViewData["Title"]="Shop";}
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4"><div><h1 class="h2">Shop pet essentials</h1><p class="text-muted mb-0">Find something for every furry friend.</p></div>@if(User.IsInRole("Admin")||User.IsInRole("Seller")){<a class="btn btn-primary" asp-action="Create">＋ Add product</a>}</div>
-<form method="get" class="filter-panel row g-2 mb-4"><div class="col-md-4"><input class="form-control" name="search" value="@ViewBag.Search" placeholder="Search products..."/></div><div class="col-6 col-md-2"><select class="form-select" name="petType"><option value="">All pets</option><option selected="@(ViewBag.PetType as string=="Cat")" value="Cat">Cats</option><option selected="@(ViewBag.PetType as string=="Dog")" value="Dog">Dogs</option></select></div><div class="col-6 col-md-2"><select class="form-select" name="category"><option value="">All categories</option>@foreach(var c in new[]{"Food","Treats","Clothing","Daily Essentials","Toys"}){<option selected="@(ViewBag.Category as string==c)" value="@c">@c</option>}</select></div><div class="col-6 col-md-1"><input class="form-control" type="number" min="0" step="1" name="minPrice" value="@ViewBag.MinPrice" placeholder="Min £"/></div><div class="col-6 col-md-1"><input class="form-control" type="number" min="0" step="1" name="maxPrice" value="@ViewBag.MaxPrice" placeholder="Max £"/></div><div class="col-md-2 d-grid"><button class="btn btn-dark">Search / Filter</button></div></form>
-<div class="row g-4">@foreach(var p in Model){<div class="col-6 col-md-4 col-lg-3"><div class="card product-card h-100"><img class="card-img-top" src="@p.ImageUrl" alt="@p.Name"/><div class="card-body d-flex flex-column"><div class="small text-muted">@p.PetType · @p.Category</div><h2 class="h6 mt-2">@p.Name</h2><p class="small text-muted">@p.Description</p><div class="mt-auto d-flex justify-content-between align-items-center"><strong>£@p.Price.ToString("0.00")</strong><span class="small">Stock: @p.Stock</span></div><a class="btn btn-primary btn-sm mt-3" asp-action="Details" asp-route-id="@p.Id">View product</a></div></div></div>}</div>
-@if(ViewBag.TotalPages>1){<nav class="mt-4"><ul class="pagination">@for(int i=1;i<=(int)ViewBag.TotalPages;i++){<li class="page-item @(i==(int)ViewBag.Page?"active":"")"><a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-search="@ViewBag.Search" asp-route-petType="@ViewBag.PetType" asp-route-category="@ViewBag.Category" asp-route-minPrice="@ViewBag.MinPrice" asp-route-maxPrice="@ViewBag.MaxPrice">@i</a></li>}</ul></nav>}
+
+@{
+    ViewData["Title"] = "Shop";
+
+    var categories = new[]
+    {
+        "Food", "Treats", "Toys", "Grooming",
+        "Accessories", "Clothing", "Daily Essentials"
+    };
+
+    string pet = ViewBag.PetType as string;
+    string category = ViewBag.Category as string;
+
+    int page = ViewBag.Page == null ? 1 : (int)ViewBag.Page;
+    int totalPages = ViewBag.TotalPages == null
+        ? 1 : (int)ViewBag.TotalPages;
+
+    // Always show first 3 and last 3 pages.
+    // Also show current page and its neighbours when needed.
+    var visiblePages = new SortedSet<int>();
+
+    for (int i = 1; i <= Math.Min(3, totalPages); i++)
+        visiblePages.Add(i);
+
+    for (int i = Math.Max(1, totalPages - 2); i <= totalPages; i++)
+        visiblePages.Add(i);
+
+    for (int i = Math.Max(1, page - 1);
+         i <= Math.Min(totalPages, page + 1); i++)
+        visiblePages.Add(i);
+
+    int previousNumber = 0;
+}
+
+<style>
+    .paw-shop-hero {
+        background: linear-gradient(110deg, #e3eee4, #fff3e5);
+        padding: 35px;
+        border-radius: 22px;
+        color: #284d3a;
+    }
+
+    .paw-shop-hero h1 {
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .paw-shop-filter {
+        background: #fff;
+        border: 1px solid #e3eae3;
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,.04);
+    }
+
+    .paw-shop-btn {
+        background: #47795b !important;
+        border: 1px solid #47795b !important;
+        color: white !important;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .paw-shop-btn:hover {
+        background: #315a41 !important;
+    }
+
+    .paw-shop-card {
+        border: 1px solid #e7ece7 !important;
+        border-radius: 16px !important;
+        overflow: hidden;
+        box-shadow: 0 3px 14px rgba(0,0,0,.04);
+        transition: transform .2s, box-shadow .2s;
+    }
+
+    .paw-shop-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 24px rgba(0,0,0,.08);
+    }
+
+    .paw-shop-photo {
+        height: 185px !important;
+        max-height: 185px !important;
+        width: 100%;
+        background: #f8faf6;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .paw-shop-photo img {
+        display: block;
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 185px !important;
+        object-fit: contain !important;
+        padding: 12px;
+    }
+
+    .paw-shop-name {
+        font-size: 15px;
+        line-height: 1.45;
+        font-weight: 700;
+        height: 44px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .paw-shop-name a {
+        color: #263c30;
+        text-decoration: none;
+    }
+
+    .paw-shop-name a:hover {
+        color: #47795b;
+    }
+
+    .paw-shop-price {
+        font-size: 20px;
+        font-weight: 800;
+        color: #315a41;
+    }
+
+    .paw-shop-tag {
+        font-size: 11px;
+        color: #47795b;
+        background: #e9f3e9;
+        border-radius: 20px;
+        padding: 4px 9px;
+    }
+
+    .paw-shop-pagination .page-link {
+        color: #47795b;
+        border-color: #e0e8e0;
+        border-radius: 8px;
+        margin: 2px;
+    }
+
+    .paw-shop-pagination .active .page-link {
+        color: #fff;
+        background: #47795b;
+        border-color: #47795b;
+    }
+
+    @@media (max-width: 576px) {
+        .paw-shop-hero { padding: 24px; }
+        .paw-shop-photo,
+        .paw-shop-photo img {
+            height: 145px !important;
+            max-height: 145px !important;
+        }
+    }
+</style>
+
+<section class="paw-shop-hero mb-4">
+    <div class="small fw-bold mb-2">PAWPUFF PET SHOP</div>
+    <h1 class="display-6">Little things, big tail wags.</h1>
+    <p class="mb-0">
+        Food, toys, treats and everyday essentials for your pets.
+    </p>
+</section>
+
+<form method="get" asp-action="Index"
+      class="paw-shop-filter row g-3 mb-4">
+
+    <div class="col-12 col-lg-4">
+        <label class="form-label small fw-semibold">Search</label>
+        <input class="form-control" name="search"
+               value="@ViewBag.Search"
+               placeholder="Search products..." />
+    </div>
+
+    <div class="col-6 col-lg-2">
+        <label class="form-label small fw-semibold">Pet type</label>
+        <select class="form-select" name="petType">
+            <option value="">All pets</option>
+            <option value="Cat" selected="@(pet == "Cat")">Cats</option>
+            <option value="Dog" selected="@(pet == "Dog")">Dogs</option>
+        </select>
+    </div>
+
+    <div class="col-6 col-lg-2">
+        <label class="form-label small fw-semibold">Category</label>
+        <select class="form-select" name="category">
+            <option value="">All categories</option>
+            @foreach (var c in categories)
+            {
+                <option value="@c" selected="@(category == c)">
+                    @c
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="col-6 col-lg-1">
+        <label class="form-label small fw-semibold">Min £</label>
+        <input class="form-control" type="number" name="minPrice"
+               min="0" step="0.01" value="@ViewBag.MinPrice" />
+    </div>
+
+    <div class="col-6 col-lg-1">
+        <label class="form-label small fw-semibold">Max £</label>
+        <input class="form-control" type="number" name="maxPrice"
+               min="0" step="0.01" value="@ViewBag.MaxPrice" />
+    </div>
+
+    <div class="col-12 col-lg-2 d-grid align-self-end">
+        <button class="btn paw-shop-btn" type="submit">
+            Search / Filter
+        </button>
+    </div>
+</form>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h5 fw-bold mb-0">Discover our products</h2>
+
+    @if (User.IsInRole("Admin") || User.IsInRole("Seller"))
+    {
+        <a class="btn paw-shop-btn" asp-action="Create">
+            + Add product
+        </a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <h3>No products found</h3>
+        <p>Try adjusting your search or filters.</p>
+        <a asp-action="Index" class="btn paw-shop-btn">
+            View all products
+        </a>
+    </div>
+}
+else
+{
+    <div class="row g-3 g-lg-4">
+
+        @foreach (var p in Model)
+        {
+            var photo = string.IsNullOrWhiteSpace(p.ImageUrl)
+            ? Url.Content("~/images/pawpuff-placeholder.svg")
+            : p.ImageUrl;
+
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card paw-shop-card h-100">
+
+                    <a asp-action="Details" asp-route-id="@p.Id"
+                       class="text-decoration-none">
+
+                        <div class="paw-shop-photo">
+                            <img src="@photo"
+                                 alt="@p.Name"
+                                 loading="lazy"
+                                 onerror="this.onerror=null;this.src='/images/pawpuff-placeholder.svg';" />
+                        </div>
+                    </a>
+
+                    <div class="card-body d-flex flex-column p-3">
+
+                        <div class="mb-2">
+                            <span class="paw-shop-tag">
+                                @p.PetType · @p.Category
+                            </span>
+                        </div>
+
+                        <div class="paw-shop-name mb-3">
+                            <a asp-action="Details" asp-route-id="@p.Id">
+                                @p.Name
+                            </a>
+                        </div>
+
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between
+                                        align-items-center mb-3">
+
+                                <span class="paw-shop-price">
+                                    £@p.Price.ToString("0.00")
+                                </span>
+
+                                @if (p.Stock > 0)
+                                {
+                                    <span class="small text-success">
+                                        In stock
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="small text-danger">
+                                        Sold out
+                                    </span>
+                                }
+                            </div>
+
+                            <a asp-action="Details"
+                               asp-route-id="@p.Id"
+                               class="btn paw-shop-btn w-100">
+                                View product
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@if (totalPages > 1)
+{
+    <nav class="mt-5" aria-label="Product pagination">
+        <ul class="pagination paw-shop-pagination
+                   justify-content-center flex-wrap">
+
+            <!-- Previous -->
+            <li class="page-item @(page <= 1 ? "disabled" : "")">
+                <a class="page-link"
+                   aria-label="Previous page"
+                   asp-action="Index"
+                   asp-route-page="@(Math.Max(1, page - 1))"
+                   asp-route-search="@ViewBag.Search"
+                   asp-route-petType="@ViewBag.PetType"
+                   asp-route-category="@ViewBag.Category"
+                   asp-route-minPrice="@ViewBag.MinPrice"
+                   asp-route-maxPrice="@ViewBag.MaxPrice">
+                    &laquo;
+                </a>
+            </li>
+
+            @foreach (int number in visiblePages)
+            {
+                if (previousNumber > 0 && number - previousNumber > 1)
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                }
+
+                <li class="page-item @(number == page ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@number"
+                       asp-route-search="@ViewBag.Search"
+                       asp-route-petType="@ViewBag.PetType"
+                       asp-route-category="@ViewBag.Category"
+                       asp-route-minPrice="@ViewBag.MinPrice"
+                       asp-route-maxPrice="@ViewBag.MaxPrice">
+                        @number
+                    </a>
+                </li>
+
+                previousNumber = number;
+            }
+
+            <!-- Next -->
+            <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                <a class="page-link"
+                   aria-label="Next page"
+                   asp-action="Index"
+                   asp-route-page="@(Math.Min(totalPages, page + 1))"
+                   asp-route-search="@ViewBag.Search"
+                   asp-route-petType="@ViewBag.PetType"
+                   asp-route-category="@ViewBag.Category"
+                   asp-route-minPrice="@ViewBag.MinPrice"
+                   asp-route-maxPrice="@ViewBag.MaxPrice">
+                    &raquo;
+                </a>
+            </li>
+        </ul>
+    </nav>
+}
