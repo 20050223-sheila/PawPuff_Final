@@ -1,0 +1,99 @@
+@model MyAccountOverviewViewModel
+@{
+    ViewData["Title"] = "My Account";
+}
+<div class="paw-account-page">
+    <header class="paw-page-hero paw-page-hero-account mb-4">
+        <div class="paw-page-hero-copy">
+            <span class="paw-cart-eyebrow">🐾 YOUR LITTLE PAWPUFF SPACE</span>
+            <h1 class="paw-page-hero-title">My Account <span class="paw-heart" aria-hidden="true">♡</span></h1>
+            <p>Manage your account, orders and saved addresses.</p>
+        </div>
+        <img class="paw-page-hero-pets" src="~/images/brand/paws-header.png" alt="" />
+    </header>
+
+    <div class="row g-4">
+        <aside class="col-lg-3">
+            <nav class="paw-account-sidebar" aria-label="My Account pages">
+                <div class="paw-account-sidebar-heading">🐾 My PawPuff</div>
+                <a class="paw-side-link paw-side-active" asp-action="Index">👤 <span>My Account</span> →</a>
+                <a class="paw-side-link" asp-action="Orders">📦 <span>My Orders</span> →</a>
+                <a class="paw-side-link" asp-action="Addresses">📍 <span>My Addresses</span> →</a>
+                <div class="paw-sidebar-mascots" aria-hidden="true">🐶 ♡ 🐱</div>
+            </nav>
+        </aside>
+        <div class="col-lg-9">
+            <section class="panel paw-account-information mb-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                    <h2 class="h5 fw-bold mb-0">👤 Personal information</h2>
+                    <span class="paw-soft-label">PawPuff member ♡</span>
+                </div>
+                <dl class="paw-account-data mb-0">
+                    <div><dt>Username</dt><dd>@Model.UserName</dd></div>
+                    <div><dt>Email</dt><dd>@Model.Email</dd></div>
+                    <div><dt>Account ID</dt><dd><code class="paw-account-id">@Model.UserId</code></dd></div>
+                </dl>
+            </section>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <a class="paw-account-link-card" asp-action="Orders" asp-route-status="paid">
+                        <span class="paw-action-icon">📦</span>
+                        <span><strong>Paid orders</strong><small>@Model.PaidCount demo-paid / shipped</small></span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a class="paw-account-link-card" asp-action="Orders" asp-route-status="completed">
+                        <span class="paw-action-icon">✅</span>
+                        <span><strong>Completed orders</strong><small>@Model.CompletedCount completed</small></span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <section class="panel h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
+                            <h2 class="h5 fw-bold mb-0">🧾 Recent orders</h2>
+                            <a asp-action="Orders" class="btn btn-outline-secondary btn-sm">View all</a>
+                        </div>
+                        @if (!Model.RecentOrders.Any())
+                        {
+                            <p class="text-muted">You have not placed any orders yet.</p>
+                        }
+                        else
+                        {
+                            @foreach (var order in Model.RecentOrders)
+                            {
+                                <div class="paw-account-list-row">
+                                    <div><strong>Order #@order.Id</strong><div class="small text-muted">@order.CreatedAt.ToLocalTime().ToString("dd MMM yyyy") · @order.Status</div></div>
+                                    <div class="text-end"><strong>£@order.Total.ToString("0.00")</strong><div><a asp-action="Details" asp-route-id="@order.Id">View bill →</a></div></div>
+                                </div>
+                            }
+                        }
+                    </section>
+                </div>
+                <div class="col-lg-5">
+                    <section class="panel h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
+                            <h2 class="h5 fw-bold mb-0">📍 Saved addresses</h2>
+                            <a asp-action="Addresses" class="btn btn-outline-secondary btn-sm">View all</a>
+                        </div>
+                        @if (!Model.SavedAddresses.Any())
+                        {
+                            <p class="text-muted">Your delivery addresses will appear here after your first order.</p>
+                        }
+                        else
+                        {
+                            @foreach (var address in Model.SavedAddresses)
+                            {
+                                <div class="paw-address-row">📍 <span class="paw-address-text">@address</span></div>
+                            }
+                        }
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

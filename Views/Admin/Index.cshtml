@@ -1,3 +1,217 @@
-@model IEnumerable<Order>
-@{ViewData["Title"]="Admin dashboard";}
-<h1 class="h2 mb-4">Admin dashboard</h1><div class="row g-3 mb-4"><div class="col-6 col-lg-3"><div class="stat-card"><span>Active products</span><strong>@ViewBag.ProductCount</strong></div></div><div class="col-6 col-lg-3"><div class="stat-card"><span>Total orders</span><strong>@ViewBag.OrderCount</strong></div></div><div class="col-6 col-lg-3"><div class="stat-card"><span>Registered users</span><strong>@ViewBag.Users</strong></div></div><div class="col-6 col-lg-3"><div class="stat-card"><span>Recorded revenue</span><strong>£@(((decimal)ViewBag.Revenue).ToString("0.00"))</strong></div></div></div><div class="d-flex justify-content-between mb-3"><h2 class="h4">Recent orders</h2><a class="btn btn-primary btn-sm" asp-controller="Products" asp-action="Create">Add product</a></div><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Order</th><th>Date</th><th>Total</th><th>Payment</th><th>Status</th><th>Update status</th></tr></thead><tbody>@foreach(var o in Model){<tr><td>#@o.Id</td><td>@o.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td><td>£@o.Total.ToString("0.00")</td><td>@o.PaymentMethod</td><td>@o.Status</td><td><form asp-action="UpdateStatus" method="post" class="d-flex gap-2"><input type="hidden" name="id" value="@o.Id"/><select name="status" class="form-select form-select-sm"><option>Pending</option><option>Shipped</option><option>Completed</option><option>Cancelled</option></select><button class="btn btn-sm btn-outline-primary">Save</button></form></td></tr>}</tbody></table></div>
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin control centre";
+    var lowStockLimit = PawPuff.Services.InventoryRules.LowStockThreshold;
+}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <span class="paw-cart-eyebrow">🐾 PAWPUFF ADMINISTRATION</span>
+        <h1 class="h2 fw-bold mt-2">Admin control centre</h1>
+        <p class="text-muted mb-0">Administrator = full operations rights + reviews, operator management and sales reporting.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-paw" asp-controller="Operations" asp-action="Index">Manage catalogue &amp; inventory</a>
+        <a class="btn btn-outline-primary" asp-controller="Operations" asp-action="Create">Publish new product</a>
+        <a class="btn btn-outline-secondary" asp-controller="Products" asp-action="Create">Create product (CRUD)</a>
+    </div>
+</div>
+@if (TempData["Message"] != null) { <div class="alert alert-success">@TempData["Message"]</div> }
+@if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+<div class="alert alert-info">All payment amounts are <strong>demo-only sales totals</strong>. No real money is collected on PawPuff.</div>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3"><div class="stat-card"><span>Demo sales value</span><strong>£@Model.DemoSalesTotal.ToString("0.00")</strong></div></div>
+    <div class="col-6 col-xl-3"><div class="stat-card"><span>Paid demo orders</span><strong>@Model.PaidOrderCount</strong></div></div>
+    <div class="col-6 col-xl-3"><div class="stat-card"><span>Units sold</span><strong>@Model.SoldUnits</strong></div></div>
+    <div class="col-6 col-xl-3"><div class="stat-card"><span>Registered accounts</span><strong>@Model.UserCount</strong></div></div>
+    <div class="col-6 col-xl-4"><div class="stat-card"><span>Active products</span><strong>@Model.ActiveProductCount</strong></div></div>
+    <div class="col-6 col-xl-4"><div class="stat-card"><span>Low stock (≤@lowStockLimit)</span><strong class="text-danger">@Model.LowStockCount</strong></div></div>
+    <div class="col-12 col-xl-4"><div class="stat-card"><span>Awaiting admin review</span><strong class="@(Model.PendingReviewCount > 0 ? "text-danger" : "text-secondary")" id="admin-pending-count">@Model.PendingReviewCount</strong></div></div>
+</div>
+
+<section class="panel mb-4" id="admin-approval-queue">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h2 class="h4 fw-bold mb-0">Operator requests / approval queue</h2>
+        <span class="badge @(Model.PendingReviewCount > 0 ? "bg-danger" : "bg-secondary")" id="admin-review-badge">
+            @Model.PendingReviewCount pending
+        </span>
+    </div>
+    <p id="new-review-alert" class="alert alert-warning d-none" role="status">New operator request received. <a asp-action="Index" asp-fragment="admin-approval-queue">Refresh to review it</a>.</p>
+    <p class="small text-muted">An operator's product goes live immediately and creates a pending request. Approve = close the task. Reject = take the product off the shop.</p>
+    @if (!Model.PendingReviews.Any())
+    {
+        <p class="text-muted mb-0">No pending requests. All reviews are complete.</p>
+    }
+    else
+    {
+        <div class="table-responsive"><table class="table align-middle">
+            <thead><tr><th>Request</th><th>Product</th><th>Operator user ID</th><th>Submitted</th><th>Action</th></tr></thead>
+            <tbody>
+            @foreach (var r in Model.PendingReviews)
+            {
+                <tr>
+                    <td><span class="badge bg-danger">Pending approval</span><div class="small text-muted">@r.ActionType · #@r.Id</div></td>
+                    <td><strong>@r.ProductName</strong><div class="small">Product ID @r.ProductId</div><div class="small text-muted">@r.Summary</div></td>
+                    <td class="small admin-user-id">@r.SubmittedByUserId</td>
+                    <td class="small">@r.SubmittedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td>
+                    <td>
+                        <div class="d-flex flex-wrap gap-2">
+                            <form asp-action="ReviewProduct" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@r.Id" />
+                                <input type="hidden" name="decision" value="Approve" />
+                                <button type="submit" class="btn btn-success btn-sm">Approve ✓</button>
+                            </form>
+                            <form asp-action="ReviewProduct" method="post" onsubmit="return confirm('Reject and take the product off the shop?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@r.Id" />
+                                <input type="hidden" name="decision" value="Reject" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Reject &amp; unlist</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table></div>
+    }
+    @if (Model.ReviewHistory.Any())
+    {
+        <h3 class="h6 mt-4">Completed reviews</h3>
+        <div class="table-responsive"><table class="table table-sm align-middle">
+            <thead><tr><th>Product</th><th>Action</th><th>Outcome</th><th>Reviewed</th></tr></thead>
+            <tbody>
+            @foreach (var r in Model.ReviewHistory)
+            {
+                <tr><td>@r.ProductName (#@r.ProductId)</td><td>@r.ActionType</td>
+                    <td><span class="badge bg-secondary">@r.Status</span></td>
+                    <td>@(r.ReviewedAt.HasValue ? r.ReviewedAt.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm") : "—")</td></tr>
+            }
+            </tbody>
+        </table></div>
+    }
+</section>
+
+<section class="panel mb-4" id="admin-operators">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h2 class="h4 fw-bold mb-0">Manage operators</h2>
+        <a asp-action="CreateOperator" class="btn btn-sm btn-paw">Create operator account</a>
+    </div>
+    <p class="small text-muted">Only administrators can create, disable and re-enable operator accounts. Operators cannot access this page.</p>
+    <div class="table-responsive"><table class="table align-middle">
+        <thead><tr><th>Username / email</th><th>Account ID</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+        @foreach (var op in Model.OperatorAccounts)
+        {
+            <tr>
+                <td><strong>@op.UserName</strong><div class="small text-muted">@op.Email</div></td>
+                <td class="small admin-user-id">@op.Id</td>
+                <td><span class="badge @(op.IsDisabled ? "bg-secondary" : "bg-success")">@(op.IsDisabled ? "Disabled" : "Active")</span></td>
+                <td>
+                    <form asp-action="SetOperatorEnabled" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@op.Id" />
+                        <input type="hidden" name="enabled" value="@(op.IsDisabled ? "true" : "false")" />
+                        <button type="submit" class="btn btn-sm @(op.IsDisabled ? "btn-outline-success" : "btn-outline-danger")">
+                            @(op.IsDisabled ? "Enable" : "Disable")
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table></div>
+</section>
+
+<section class="panel mb-4">
+    <h2 class="h4 fw-bold mb-3">Top-selling products (demo)</h2>
+    <div class="table-responsive"><table class="table table-hover align-middle">
+        <thead><tr><th>Product ID</th><th>Product name</th><th>Units sold</th><th>Recorded sales</th></tr></thead>
+        <tbody>
+        @foreach (var p in Model.TopSellingProducts)
+        {
+            <tr><td>#@p.ProductId</td><td>@p.ProductName</td><td>@p.Quantity</td><td>£@p.DemoRevenue.ToString("0.00")</td></tr>
+        }
+        </tbody>
+    </table></div>
+</section>
+
+<section class="panel mb-4" id="admin-orders">
+    <h2 class="h4 fw-bold mb-3">Orders &amp; customer purchasing history</h2>
+    <p class="small text-muted">Customer IDs and purchased items are visible to administrators only. Browse all @Model.AllOrderCount orders using the pages below (newest first).</p>
+    <div class="table-responsive"><table class="table align-middle">
+        <thead><tr><th>Order ID</th><th>User ID</th><th>Purchased products</th><th>Units</th><th>Demo amount</th><th>Status</th><th>Update</th></tr></thead>
+        <tbody>
+        @foreach (var o in Model.RecentOrders)
+        {
+            <tr>
+                <td>#@o.Id <div class="small text-muted">@o.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</div></td>
+                <td class="small admin-user-id">@o.UserId</td>
+                <td>
+                    @foreach (var item in o.Items)
+                    {
+                        <div class="small">@item.ProductName × @item.Quantity</div>
+                    }
+                </td>
+                <td>@o.Items.Sum(i => i.Quantity)</td>
+                <td>£@o.Total.ToString("0.00")</td>
+                <td>@o.Status</td>
+                <td>
+                    <form asp-action="UpdateStatus" method="post" class="d-flex gap-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@o.Id" />
+                        <select name="status" class="form-select form-select-sm" disabled="@(o.Status == "Cancelled")">
+                            <option value="DemoPaid" selected="@(o.Status == "DemoPaid" || o.Status == "Paid (Demo)")">Paid (demo)</option>
+                            <option value="Pending" selected="@(o.Status == "Pending")">Pending</option>
+                            <option value="Shipped" selected="@(o.Status == "Shipped")">Shipped</option>
+                            <option value="Completed" selected="@(o.Status == "Completed")">Completed</option>
+                            <option value="Cancelled" selected="@(o.Status == "Cancelled")">Cancelled</option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-primary" disabled="@(o.Status == "Cancelled")">Save</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table></div>
+    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mt-3">
+        <span class="text-muted small">Page @Model.OrdersPage of @Model.TotalOrderPages</span>
+        <div class="d-flex gap-2">
+            @if (Model.OrdersPage > 1)
+            {
+                <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-ordersPage="@(Model.OrdersPage - 1)" asp-fragment="admin-orders">Previous</a>
+            }
+            @if (Model.OrdersPage < Model.TotalOrderPages)
+            {
+                <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-ordersPage="@(Model.OrdersPage + 1)" asp-fragment="admin-orders">Next</a>
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+.admin-user-id { overflow-wrap:anywhere; max-width:190px; }
+</style>
+
+<script>
+(function() {
+    let previous = @Model.PendingReviewCount;
+    async function poll() {
+        if (document.hidden) return;
+        try {
+            const response = await fetch('@Url.Action("PendingReviewCount", "Admin")', { credentials: 'same-origin' });
+            if (!response.ok) return;
+            const current = (await response.json()).count;
+            const metric = document.getElementById('admin-pending-count');
+            const badge = document.getElementById('admin-review-badge');
+            metric.textContent = current;
+            badge.textContent = current + ' pending';
+            badge.classList.toggle('bg-danger', current > 0);
+            badge.classList.toggle('bg-secondary', current === 0);
+            metric.classList.toggle('text-danger', current > 0);
+            if (current > previous) document.getElementById('new-review-alert').classList.remove('d-none');
+            previous = current;
+        } catch (_) { /* Page remains usable if offline. */ }
+    }
+    setInterval(poll, 20000);
+})();
+</script>

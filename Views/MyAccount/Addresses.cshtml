@@ -1,0 +1,28 @@
+@model List<string>
+@{
+    ViewData["Title"] = "Saved Addresses";
+}
+<div class="paw-account-page">
+    <header class="paw-page-hero paw-page-hero-addresses mb-4">
+        <div class="paw-page-hero-copy">
+            <span class="paw-cart-eyebrow">🐾 YOUR FAVOURITE PLACES</span>
+            <h1 class="paw-page-hero-title">Saved Addresses <span class="paw-heart" aria-hidden="true">♡</span></h1>
+            <p>Addresses used for your previous PawPuff orders. The most recent appears first.</p>
+            <a asp-action="Index" class="paw-cart-continue">← My Account</a>
+        </div>
+        <img class="paw-page-hero-pets" src="~/images/brand/paws-header.png" alt="" />
+    </header>
+    <div class="panel">
+        @if (!Model.Any())
+        {
+            <p class="text-muted mb-0">No addresses yet. Your checkout address will be saved with your next order.</p>
+        }
+        else
+        {
+            @foreach (var address in Model)
+            {
+                <div class="paw-address-row">📍 <span class="paw-address-text">@address</span></div>
+            }
+        }
+    </div>
+</div>

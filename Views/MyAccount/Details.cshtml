@@ -1,0 +1,52 @@
+@model Order
+@{
+    ViewData["Title"] = "Order bill #" + Model.Id;
+}
+<div class="paw-account-page">
+    <header class="paw-page-hero paw-page-hero-orders mb-4">
+        <div class="paw-page-hero-copy">
+            <span class="paw-cart-eyebrow">🐾 PAWPUFF ORDER DETAILS</span>
+            <h1 class="paw-page-hero-title">Order #@Model.Id <span class="paw-heart" aria-hidden="true">♡</span></h1>
+            <p>@Model.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm") · @Model.Status</p>
+            <a asp-action="Orders" class="paw-cart-continue">← My Orders</a>
+        </div>
+        <img class="paw-page-hero-pets" src="~/images/brand/paws-header.png" alt="" />
+    </header>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <section class="panel mb-4">
+                <h2 class="h5 fw-bold mb-3">Your items</h2>
+                <div class="table-responsive"><table class="table align-middle"><thead><tr><th>Product</th><th>Qty</th><th>Unit price</th><th>Subtotal</th></tr></thead><tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr><td>@item.ProductName</td><td>@item.Quantity</td><td>£@item.UnitPrice.ToString("0.00")</td><td>£@item.LineTotal.ToString("0.00")</td></tr>
+                }
+                </tbody></table></div>
+                <div class="summary-lines">
+                    <div><span>Items subtotal</span><strong>£@Model.Subtotal.ToString("0.00")</strong></div>
+                    <div><span>Shipping</span><strong>£@Model.Shipping.ToString("0.00")</strong></div>
+                    <div><span>Discount</span><strong>−£@Model.Discount.ToString("0.00")</strong></div>
+                    <hr />
+                    <div class="fs-5 fw-bold"><span>Total</span><strong>£@Model.Total.ToString("0.00")</strong></div>
+                </div>
+            </section>
+        </div>
+        <div class="col-lg-4">
+            <section class="panel mb-3">
+                <h2 class="h5 fw-bold">Delivery details</h2>
+                @if (!string.IsNullOrWhiteSpace(Model.RecipientName))
+                {
+                    <div class="mb-2"><strong>Recipient:</strong> @Model.RecipientName</div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.RecipientPhone))
+                {
+                    <div class="mb-2"><strong>Phone:</strong> @Model.RecipientPhone</div>
+                }
+                <h3 class="h6 fw-bold mt-3">Shipping address</h3>
+                <p class="paw-address-text">@Model.ShippingAddress</p>
+            </section>
+            <section class="panel"><h2 class="h5 fw-bold">Demo payment</h2><p class="mb-2">@Model.PaymentMethod</p><h3 class="h6 fw-bold">Order notes</h3><p class="paw-address-text mb-0">@(string.IsNullOrWhiteSpace(Model.Notes) ? "No notes" : Model.Notes)</p></section>
+        </div>
+    </div>
+    <p class="small text-muted mt-3">Coursework demo bill — no real charge was made.</p>
+</div>

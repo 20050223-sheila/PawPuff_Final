@@ -12,7 +12,7 @@ public static class SeedData {
    new Product{Name="Soft Dog Bed",Category="Daily Essentials",PetType="Dog",Description="Washable, comfortable resting bed.",Price=29.99m,Stock=12},
    new Product{Name="Pet Raincoat",Category="Clothing",PetType="Dog",Description="Lightweight coat for rainy walks.",Price=14.00m,Stock=16},
    new Product{Name="Cat Litter Scoop",Category="Daily Essentials",PetType="Cat",Description="Durable scoop for daily litter cleaning.",Price=3.25m,Stock=50}); await db.SaveChangesAsync(); }
-  var roles=services.GetRequiredService<RoleManager<IdentityRole>>(); foreach(var role in new[]{"Buyer","Seller","Admin"}) if(!await roles.RoleExistsAsync(role)) await roles.CreateAsync(new IdentityRole(role));
+  var roles=services.GetRequiredService<RoleManager<IdentityRole>>(); foreach(var role in new[]{"Buyer","Admin","Operator"}) if(!await roles.RoleExistsAsync(role)) await roles.CreateAsync(new IdentityRole(role));
   var users=services.GetRequiredService<UserManager<ApplicationUser>>();
   var adminName = services.GetRequiredService<IConfiguration>()["DemoAdmin:UserName"] ?? "ZMXAdmin";
   var adminEmail = services.GetRequiredService<IConfiguration>()["DemoAdmin:Email"] ?? "P2983732@my365.dmu.ac.uk";
@@ -46,5 +46,50 @@ public static class SeedData {
                 );
             }
         }
+
+  // Provision a dedicated Operations account only when explicit local secret
+  // credentials are present. Never expose these credentials in register/login UI.
+  var config = services.GetRequiredService<IConfiguration>();
+  var operatorEmail = config["Operator:Email"]?.Trim();
+  var operatorPassword = config["Operator:Password"];
+  var operatorName = config["Operator:UserName"]?.Trim();
+  if (!string.IsNullOrWhiteSpace(operatorEmail) &&
+      !string.IsNullOrWhiteSpace(operatorPassword))
+  {
+   if (string.IsNullOrWhiteSpace(operatorName))
+    operatorName = "PawPuffOperations";
+
+   var existingByEmail = await users.FindByEmailAsync(operatorEmail);
+   var existingByName = await users.FindByNameAsync(operatorName);
+   if (existingByEmail != null || existingByName != null)
+   {
+    // Do not silently promote an ordinary registered user to Operations.
+    if (existingByEmail == null || existingByName == null ||
+        existingByEmail.Id != existingByName.Id ||
+        !await users.IsInRoleAsync(existingByEmail, "Operator"))
+     throw new InvalidOperationException(
+      "The configured Operations email/name is already used by another account. " +
+      "Choose a new dedicated Operations email and username.");
+   }
+   else
+   {
+    var operatorUser = new ApplicationUser
+    {
+     UserName = operatorName,
+     Email = operatorEmail,
+     EmailConfirmed = false,
+     DisplayName = "PawPuff Operations"
+    };
+    var operatorResult = await users.CreateAsync(operatorUser, operatorPassword);
+    if (!operatorResult.Succeeded)
+     throw new InvalidOperationException("Could not create Operations account: " +
+      string.Join("; ", operatorResult.Errors.Select(x => x.Description)));
+    var addRoleResult = await users.AddToRoleAsync(operatorUser, "Operator");
+    if (!addRoleResult.Succeeded)
+     throw new InvalidOperationException("Could not assign Operations role: " +
+      string.Join("; ", addRoleResult.Errors.Select(x => x.Description)));
+   }
+  }
+
  }
 }

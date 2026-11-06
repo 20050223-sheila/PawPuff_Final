@@ -6,41 +6,17 @@
 
 <div class="paw-home">
 
-    <!-- Hero banner -->
-    <section class="paw-home-hero mb-4">
-        <div class="row align-items-center g-4">
-
-            <div class="col-lg-8">
-                <span class="paw-home-label">
-                    🐾 A LITTLE LOVE FOR EVERY PAW
-                </span>
-
-                <h1 class="display-5 fw-bold mt-3 mb-3">
-                    Everything your best friend needs.
-                </h1>
-
-                <p class="lead mb-4">
-                    Discover food, toys, treats and everyday
-                    essentials for cats and dogs.
-                </p>
-
-                <a class="btn btn-paw btn-lg"
-                   asp-controller="Products"
-                   asp-action="Index">
-                    Explore the shop
-                </a>
-            </div>
-
-            <div class="col-lg-4 text-center">
-                <div class="paw-home-decoration">
-                    <div class="paw-home-paw">🐾</div>
-                    <div class="fw-semibold">
-                        Happy pets, happy homes.
-                    </div>
-                </div>
-            </div>
-
+    <!-- Hero banner: the approved PawPuff brand look; product information elsewhere remains database-driven. -->
+    <section class="paw-home-hero paw-brand-hero mb-4" aria-label="Welcome to PawPuff">
+        <div class="paw-brand-hero-copy">
+            <span class="paw-home-label">🐾 A LITTLE LOVE FOR EVERY PAW</span>
+            <h1 class="paw-brand-headline">Everything your <em>best friend</em> needs <span aria-hidden="true">♡</span></h1>
+            <p>Discover food, toys, treats and everyday essentials for happy cats and dogs.</p>
+            <a class="btn btn-paw btn-lg paw-brand-hero-button" asp-controller="Products" asp-action="Index">🛒 Shop Now <span aria-hidden="true">→</span></a>
         </div>
+        <img class="paw-brand-hero-pets" src="~/images/brand/paws-hero.png" alt="A happy illustrated cat and dog" />
+        <span class="paw-hero-sparkle paw-hero-sparkle-one" aria-hidden="true">✦</span>
+        <span class="paw-hero-sparkle paw-hero-sparkle-two" aria-hidden="true">♡</span>
     </section>
 
     <!-- Pet categories -->
@@ -54,7 +30,7 @@
                    asp-action="Index"
                    asp-route-petType="Cat">
 
-                    <div class="paw-home-category-icon">🐱</div>
+                    <img class="paw-home-mascot" src="~/images/brand/cat-mascot.png" alt="" />
 
                     <div>
                         <h2 class="h4 fw-bold mb-1">
@@ -78,7 +54,7 @@
                    asp-action="Index"
                    asp-route-petType="Dog">
 
-                    <div class="paw-home-category-icon">🐶</div>
+                    <img class="paw-home-mascot" src="~/images/brand/dog-mascot.png" alt="" />
 
                     <div>
                         <h2 class="h4 fw-bold mb-1">
@@ -98,6 +74,61 @@
 
         </div>
     </section>
+
+    <!-- New Arrivals: populated only by Operations product publications -->
+    @{
+        var newArrivals = ViewBag.NewArrivals as List<Product> ?? new List<Product>();
+    }
+    <section class="paw-new-arrivals mb-5" id="new-arrivals">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+                <div>
+                    <span class="paw-home-section-label">FRESH FROM PAWPUFF</span>
+                    <h2 class="h3 fw-bold mt-1 mb-0">New Arrivals </h2>
+                    <p class="text-muted small mb-0 mt-2">Discover our latest products, just added to the shop.</p>
+                </div>
+                <a class="paw-home-view-all" asp-controller="Products" asp-action="Index">Shop all →</a>
+            </div>
+            @if (newArrivals.Count == 0)
+            {
+                <div class="paw-new-empty text-center p-4">
+                    <div class="fs-2 mb-2">🐾</div>
+                    <h3 class="h5 fw-bold">New products coming soon!</h3>
+                    <p class="text-muted mb-0">Check back for the latest PawPuff releases.</p>
+                </div>
+            }
+            else
+            {
+            <div class="row g-3 g-lg-4">
+                @foreach (var item in newArrivals)
+                {
+                    var picture = string.IsNullOrWhiteSpace(item.ImageUrl)
+                        ? Url.Content("~/images/pawpuff-placeholder.svg") : item.ImageUrl;
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <article class="card paw-home-product paw-new-product h-100">
+                            <span class="paw-new-badge">NEW</span>
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id">
+                                <div class="paw-home-product-image">
+                                    <img src="@picture" alt="@item.Name" loading="lazy"
+                                         onerror="this.onerror=null;this.src='/images/pawpuff-placeholder.svg';" />
+                                </div>
+                            </a>
+                            <div class="card-body d-flex flex-column p-3">
+                                <div class="paw-home-product-category mb-2">@item.PetType · @item.Category</div>
+                                <h3 class="paw-home-product-title mb-3">
+                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id">@item.Name</a>
+                                </h3>
+                                <div class="mt-auto d-flex justify-content-between align-items-center gap-2">
+                                    <strong class="paw-home-product-price">£@item.Price.ToString("0.00")</strong>
+                                    <a class="btn btn-outline-paw btn-sm" asp-controller="Products"
+                                       asp-action="Details" asp-route-id="@item.Id">View</a>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+            }
+        </section>
 
     <!-- Popular products -->
     <section class="mb-5">

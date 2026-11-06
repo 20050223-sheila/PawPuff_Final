@@ -14,6 +14,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequireUppercase = false;
 }).AddEntityFrameworkStores<ShopDbContext>()
   .AddDefaultTokenProviders();
+builder.Services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.Zero);
 builder.Services.ConfigureApplicationCookie(options => { options.LoginPath = "/Account/Login"; options.AccessDeniedPath = "/Account/Denied"; });
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddHttpContextAccessor();

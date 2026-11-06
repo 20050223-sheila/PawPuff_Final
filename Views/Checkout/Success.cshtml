@@ -60,6 +60,15 @@
                 <strong>@Model.PaymentMethod</strong>
             </div>
 
+            <div class="paw-success-row">
+                <span>Recipient</span>
+                <strong>@Model.RecipientName</strong>
+            </div>
+            <div class="paw-success-row">
+                <span>Contact phone</span>
+                <strong>@Model.RecipientPhone</strong>
+            </div>
+
             <div class="paw-success-address">
                 <span>Delivery address</span>
 
@@ -77,6 +86,16 @@
                 </strong>
             </div>
 
+        </div>
+
+        <!-- View bill / My Orders -->
+        <div class="d-grid gap-2 justify-content-center mb-3">
+            <a class="btn btn-paw btn-lg" asp-controller="MyAccount" asp-action="Orders">
+                📄 View my orders / bill
+            </a>
+            <a class="btn btn-outline-secondary" asp-controller="MyAccount" asp-action="Details" asp-route-id="@Model.Id">
+                View this order's details
+            </a>
         </div>
 
         <!-- Continue shopping -->

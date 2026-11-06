@@ -26,7 +26,8 @@
             <a class="navbar-brand paw-brand fw-bold"
                asp-controller="Home"
                asp-action="Index">
-                🐾 PawPuff
+                <span class="paw-brand-icon" aria-hidden="true">🐾</span>
+                <span class="paw-brand-name">PawPuff</span>
             </a>
 
             <button class="navbar-toggler"
@@ -47,7 +48,7 @@
                         <a class="nav-link"
                            asp-controller="Home"
                            asp-action="Index">
-                            Home
+                            <span class="paw-nav-mini" aria-hidden="true">⌂</span> Home
                         </a>
                     </li>
 
@@ -55,7 +56,7 @@
                         <a class="nav-link"
                            asp-controller="Products"
                            asp-action="Index">
-                            Shop
+                            <span class="paw-nav-mini" aria-hidden="true">♡</span> Shop
                         </a>
                     </li>
 
@@ -63,8 +64,12 @@
                         <a class="nav-link"
                            asp-controller="Cart"
                            asp-action="Index">
-                            Cart
+                            <span class="paw-nav-mini" aria-hidden="true">🛒</span> Cart
                         </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="MyAccount" asp-action="Index"><span class="paw-nav-mini" aria-hidden="true">♙</span> My Account</a>
                     </li>
 
                     @if (User.IsInRole("Admin"))
@@ -78,13 +83,11 @@
                         </li>
                     }
 
-                    @if (User.IsInRole("Seller"))
+                    @if (User.IsInRole("Operator") || User.IsInRole("Admin"))
                     {
                         <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="Seller"
-                               asp-action="Index">
-                                Seller
+                            <a class="nav-link" asp-controller="Operations" asp-action="Index">
+                                Operations
                             </a>
                         </li>
                     }

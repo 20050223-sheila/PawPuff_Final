@@ -1,0 +1,46 @@
+@model MyOrdersViewModel
+@{
+    ViewData["Title"] = "My Orders";
+}
+<div class="paw-account-page">
+    <header class="paw-page-hero paw-page-hero-orders mb-4">
+        <div class="paw-page-hero-copy">
+            <span class="paw-cart-eyebrow">🐾 YOUR PAWPUFF ORDERS</span>
+            <h1 class="paw-page-hero-title">My Orders <span class="paw-heart" aria-hidden="true">♡</span></h1>
+            <p>View and track your recent orders.</p>
+            <a asp-action="Index" class="paw-cart-continue">← My Account</a>
+        </div>
+        <img class="paw-page-hero-pets" src="~/images/brand/paws-header.png" alt="" />
+    </header>
+    <div class="d-flex gap-2 flex-wrap mb-4" aria-label="Filter orders">
+        <a asp-action="Orders" asp-route-status="all" class="btn @(Model.SelectedStatus == "all" ? "btn-paw" : "btn-outline-secondary")">All orders</a>
+        <a asp-action="Orders" asp-route-status="paid" class="btn @(Model.SelectedStatus == "paid" ? "btn-paw" : "btn-outline-secondary")">Paid orders</a>
+        <a asp-action="Orders" asp-route-status="completed" class="btn @(Model.SelectedStatus == "completed" ? "btn-paw" : "btn-outline-secondary")">Completed orders</a>
+    </div>
+    @if (!Model.Orders.Any())
+    {
+        <div class="panel text-center py-5"><h2 class="h5">No orders in this category.</h2><p class="text-muted">Your orders will appear here once you check out.</p><a class="btn btn-paw" asp-controller="Products" asp-action="Index">Shop now</a></div>
+    }
+    else
+    {
+        <div class="paw-order-list">
+            @foreach (var order in Model.Orders)
+            {
+                <div class="paw-order-card">
+                    <div class="paw-order-card-main">
+                        <span class="paw-order-icon" aria-hidden="true">📦</span>
+                        <div><strong>Order #@order.Id</strong>
+                        <div class="small text-muted">@order.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</div>
+                        </div>
+                    </div>
+                    <div class="paw-order-card-end text-end">
+                        <span class="paw-status-badge @(order.Status == "Completed" ? "paw-status-completed" : order.Status == "Cancelled" ? "paw-status-cancelled" : "paw-status-paid")">@order.Status</span>
+                        <strong class="d-block mt-2">£@order.Total.ToString("0.00")</strong>
+                        <a class="btn btn-outline-secondary btn-sm mt-2" asp-action="Details" asp-route-id="@order.Id">View bill →</a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    <p class="small text-muted mt-3">Payments are simulated for this coursework demonstration. “Paid” does not mean money was charged.</p>
+</div>

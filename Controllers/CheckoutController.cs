@@ -43,6 +43,23 @@ namespace PawPuff.Controllers
             ViewBag.StripeConfigured = false;
         }
 
+        // Address history is read from past orders, so no new table or migration is required.
+        private async Task LoadSavedAddressesAsync(string userId)
+        {
+            var addresses = await db.Orders.AsNoTracking()
+                .Where(o => o.UserId == userId && o.ShippingAddress != "")
+                .OrderByDescending(o => o.CreatedAt)
+                .Select(o => o.ShippingAddress)
+                .ToListAsync();
+
+            ViewBag.SavedAddresses = addresses
+                .Select(address => address.Trim())
+                .Where(address => !string.IsNullOrWhiteSpace(address))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Take(15)
+                .ToList();
+        }
+
         // Display checkout page
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -55,10 +72,21 @@ namespace PawPuff.Controllers
             }
 
             SetTotals(lines);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrWhiteSpace(userId))
+                await LoadSavedAddressesAsync(userId);
+
+            var lastOrder = await db.Orders.AsNoTracking()
+                .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.CreatedAt)
+                .Select(o => new { o.RecipientName, o.RecipientPhone })
+                .FirstOrDefaultAsync();
 
             return View(new CheckoutViewModel
             {
-                PaymentMethod = "Card"
+                PaymentMethod = "Card",
+                RecipientName = lastOrder?.RecipientName ?? "",
+                RecipientPhone = lastOrder?.RecipientPhone ?? ""
             });
         }
 
@@ -102,11 +130,20 @@ namespace PawPuff.Controllers
                     "Please select a valid demo payment method.");
             }
 
+            if (string.IsNullOrWhiteSpace(model.ShippingAddress))
+                ModelState.AddModelError(nameof(model.ShippingAddress),
+                    "Please enter a shipping address.");
+
             if (!ModelState.IsValid)
             {
                 SetTotals(lines);
+                await LoadSavedAddressesAsync(userId);
                 return View("Index", model);
             }
+
+            model.ShippingAddress = model.ShippingAddress.Trim();
+            model.RecipientName = model.RecipientName.Trim();
+            model.RecipientPhone = model.RecipientPhone.Trim();
 
             // Recheck products, prices and stock
             var verified = new List<CartLine>();
@@ -121,7 +158,7 @@ namespace PawPuff.Controllers
 
                 if (product == null ||
                     line.Quantity <= 0 ||
-                    product.Stock < line.Quantity)
+                    !InventoryRules.CanPurchase(product.Stock, line.Quantity))
                 {
                     TempData["Error"] =
                         "Product stock changed. Please check your cart.";
@@ -149,6 +186,7 @@ namespace PawPuff.Controllers
 
             try
             {
+                var stockChanges = new List<(CartLine Line, int StockAfter)>();
                 foreach (var line in verified)
                 {
                     // Only decrease stock when enough remains
@@ -167,6 +205,12 @@ namespace PawPuff.Controllers
                         throw new InvalidOperationException(
                             "Stock is no longer sufficient.");
                     }
+
+                    // Read back the DB value, not a stale cart or tracked Product value.
+                    int stockAfter = await db.Products.AsNoTracking()
+                        .Where(p => p.Id == line.ProductId)
+                        .Select(p => p.Stock).SingleAsync();
+                    stockChanges.Add((line, stockAfter));
                 }
 
                 var order = new Order
@@ -176,6 +220,8 @@ namespace PawPuff.Controllers
                     Status = "DemoPaid",
                     PaymentMethod = model.PaymentMethod + " (Demo)",
                     ShippingAddress = model.ShippingAddress,
+                    RecipientName = model.RecipientName,
+                    RecipientPhone = model.RecipientPhone,
                     Notes = model.Notes,
                     Subtotal = subtotal,
                     Shipping = shipping,
@@ -194,6 +240,23 @@ namespace PawPuff.Controllers
                 };
 
                 db.Orders.Add(order);
+                await db.SaveChangesAsync(); // Gets the new order Id.
+
+                // Stock, sales order and its audit log all commit or roll back together.
+                foreach (var entry in stockChanges)
+                {
+                    db.InventoryMovements.Add(new InventoryMovement
+                    {
+                        ProductId = entry.Line.ProductId,
+                        ProductName = entry.Line.Name,
+                        OrderId = order.Id,
+                        UserId = userId,
+                        QuantityChanged = -entry.Line.Quantity,
+                        StockAfter = entry.StockAfter,
+                        Reason = "Sale",
+                        OccurredAt = DateTime.UtcNow
+                    });
+                }
                 await db.SaveChangesAsync();
 
                 // Remove database cart items

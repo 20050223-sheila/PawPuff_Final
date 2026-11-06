@@ -1,0 +1,214 @@
+@model OperationsDashboardViewModel
+@{
+    ViewData["Title"] = "PawPuff Operations";
+    var lowStockLimit = PawPuff.Services.InventoryRules.LowStockThreshold;
+}
+<div class="paw-operations">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <span class="paw-cart-eyebrow">🐾 PAWPUFF BRAND OPERATIONS</span>
+            <h1 class="h2 fw-bold mt-2 mb-1">Operations dashboard</h1>
+            <p class="text-muted mb-0">Manage products and monitor inventory changes after customer purchases.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-paw btn-lg" asp-action="Create">+ Publish new product</a>
+            @if (User.IsInRole("Admin"))
+            {
+                <a class="btn btn-outline-danger" asp-controller="Admin" asp-action="Index">Admin reviews</a>
+            }
+        </div>
+    </div>
+    @if (TempData["Message"] != null) { <div class="alert alert-success">@TempData["Message"]</div> }
+    @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3"><div class="stat-card"><span>All products</span><strong>@Model.ProductCount</strong></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card"><span>Low stock (≤@lowStockLimit)</span><strong id="live-low-stock-count" class="@(Model.LowStockCount > 0 ? "text-danger" : "")">@Model.LowStockCount</strong></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card"><span>Orders</span><strong>@Model.OrderCount</strong></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card"><span>Accounts</span><strong>@Model.CustomerCount</strong></div></div>
+    </div>
+
+    <div id="live-restock-alert" class="alert alert-danger @(Model.LowStockCount > 0 ? "" : "d-none")" role="status">
+        ⚠ Some active products need restocking (stock ≤ @lowStockLimit). Review the red stock figures below.
+    </div>
+    @if (Model.LowStockCount > 0)
+    {
+        <section class="alert alert-warning paw-inventory-warning" role="alert">
+            <h2 class="h5 mb-2">⚠ Restock reminder: @Model.LowStockCount products have @lowStockLimit or fewer units left</h2>
+            <p class="small mb-2">These products need replenishment:</p>
+            <div class="d-flex gap-2 flex-wrap">
+                @foreach (var p in Model.LowStockProducts)
+                {
+                    <a class="btn btn-sm btn-outline-dark" asp-controller="Products" asp-action="Edit" asp-route-id="@p.Id">@p.Name — @p.Stock left</a>
+                }
+            </div>
+            @if (Model.LowStockCount > Model.LowStockProducts.Count)
+            {
+                <a asp-action="Index" asp-route-lowStockOnly="true" class="small d-block mt-2">See all low stock items</a>
+            }
+        </section>
+    }
+    <div id="inventory-update-alert" class="alert alert-info d-none" role="status">
+        New inventory movement detected. <a href="@Url.Action("Index", "Operations", new { search = Model.Search, petType = Model.PetType, category = Model.Category, lowStockOnly = Model.LowStockOnly, page = Model.Page })">Refresh to view the latest transaction</a>.
+    </div>
+
+    <section class="panel mb-4">
+        <h2 class="h5 fw-bold mb-3">Products &amp; inventory</h2>
+        <form asp-action="Index" method="get" class="row g-2 align-items-end mb-3">
+            <div class="col-12 col-lg-4"><label class="form-label small">Search</label>
+                <input class="form-control" type="search" name="search" value="@Model.Search" placeholder="Name or category" /></div>
+            <div class="col-6 col-lg-2"><label class="form-label small">Pet</label>
+                <select class="form-select" name="petType"><option value="">All pets</option>
+                    <option value="Cat" selected="@(Model.PetType == "Cat")">Cat</option>
+                    <option value="Dog" selected="@(Model.PetType == "Dog")">Dog</option>
+                </select></div>
+            <div class="col-6 col-lg-2"><label class="form-label small">Category</label>
+                <input class="form-control" name="category" value="@Model.Category" placeholder="All" /></div>
+            <div class="col-12 col-lg-2 form-check ms-2"><input class="form-check-input" type="checkbox" name="lowStockOnly" id="low-stock-only" value="true" checked="@Model.LowStockOnly" />
+                <label class="form-check-label" for="low-stock-only">Low stock only</label></div>
+            <div class="col-12 col-lg-1"><button class="btn btn-outline-primary" type="submit">Filter</button></div>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle paw-operation-table">
+                <thead><tr><th>Image</th><th>Product</th><th>Price</th><th>Stock</th><th>Visibility</th><th>CRUD</th></tr></thead>
+                <tbody>
+                @foreach (var p in Model.Products)
+                {
+                    <tr data-paw-product-id="@p.Id">
+                        <td><img class="paw-operation-thumb" src="@(string.IsNullOrWhiteSpace(p.ImageUrl) ? "/images/pawpuff-placeholder.svg" : p.ImageUrl)" alt="" onerror="this.onerror=null;this.src='/images/pawpuff-placeholder.svg';" /></td>
+                        <td><strong>@p.Name</strong><div class="small text-muted">#@p.Id · @p.PetType / @p.Category</div>
+                            @if (p.IsNewArrival) { <span class="badge bg-success-subtle text-success-emphasis">New arrival</span> }
+                        </td>
+                        <td>£@p.Price.ToString("0.00")</td>
+                        <td><strong class="@(p.Stock <= lowStockLimit ? "text-danger" : "")" data-paw-stock>@p.Stock</strong>
+                            <span class="small text-danger @(p.Stock <= lowStockLimit ? "" : "d-none")" data-paw-restock>⚠ Restock</span>
+                            <span class="small text-warning d-none" data-paw-decrease></span></td>
+                        <td data-paw-visibility>@(p.IsActive ? "Visible" : "Hidden")</td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-1">
+                                <a class="btn btn-sm btn-outline-secondary" asp-controller="Products" asp-action="Edit" asp-route-id="@p.Id">Edit</a>
+
+                                <form asp-action="SetListing" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@p.Id" />
+                                    <input type="hidden" name="active" value="@(!p.IsActive)" />
+                                    <button type="submit" class="btn btn-sm @(p.IsActive ? "btn-outline-warning" : "btn-outline-success")">
+                                        @(p.IsActive ? "Unpublish" : "Publish")
+                                    </button>
+                                </form>
+
+                                <form asp-action="RemoveProduct" method="post" class="d-inline" onsubmit="return confirm('Remove this product from the shop? It will be hidden from customers but kept in the database.');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@p.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        @if (!Model.Products.Any()) { <p class="text-muted">No matching products.</p> }
+        <div class="d-flex justify-content-between align-items-center gap-2 mt-3">
+            <span class="small text-muted">Page @Model.Page of @Model.TotalPages</span>
+            <div class="d-flex gap-2">
+                @if (Model.Page > 1)
+                {
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-page="@(Model.Page - 1)" asp-route-search="@Model.Search"
+                       asp-route-petType="@Model.PetType" asp-route-category="@Model.Category" asp-route-lowStockOnly="@Model.LowStockOnly">Previous</a>
+                }
+                @if (Model.Page < Model.TotalPages)
+                {
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-page="@(Model.Page + 1)" asp-route-search="@Model.Search"
+                       asp-route-petType="@Model.PetType" asp-route-category="@Model.Category" asp-route-lowStockOnly="@Model.LowStockOnly">Next</a>
+                }
+            </div>
+        </div>
+        <p class="text-muted small mb-0 mt-2">Stock figures update automatically approximately every 20 seconds while this page is open.</p>
+    </section>
+
+    <section class="panel mb-4">
+        <h2 class="h5 fw-bold mb-3">Recent inventory changes</h2>
+        <p class="small text-muted">Sale = stock deducted after successful demo checkout; Cancellation = restored; Restock/Adjustment = manual stock edit.</p>
+        <div class="table-responsive"><table class="table align-middle">
+            <thead><tr><th>Date</th><th>Product</th><th>Change</th><th>Stock after</th><th>Reason</th><th>Order</th></tr></thead>
+            <tbody>
+            @foreach (var item in Model.RecentInventoryMovements)
+            {
+                <tr><td>@item.OccurredAt.ToLocalTime().ToString("dd MMM HH:mm")</td>
+                    <td>@item.ProductName (#@item.ProductId)</td>
+                    <td class="@(item.QuantityChanged < 0 ? "text-danger" : "text-success") fw-bold">@(item.QuantityChanged > 0 ? "+" : "")@item.QuantityChanged</td>
+                    <td>@item.StockAfter</td><td>@item.Reason</td><td>@(item.OrderId.HasValue ? "#" + item.OrderId.Value : "—")</td></tr>
+            }
+            </tbody>
+        </table></div>
+        @if (!Model.RecentInventoryMovements.Any())
+        {
+            <p class="text-muted">Newly completed purchases and stock edits will appear here. Existing historical orders are not rewritten.</p>
+        }
+    </section>
+
+    <section class="panel">
+        <h2 class="h5 fw-bold mb-3">Recent orders overview</h2>
+        <div class="table-responsive"><table class="table align-middle">
+            <thead><tr><th>Order</th><th>Date</th><th>Status</th><th>Demo total</th></tr></thead>
+            <tbody>
+            @foreach (var order in Model.RecentOrders)
+            {
+                <tr><td>#@order.Id</td><td>@order.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                    <td>@order.Status</td><td>£@order.Total.ToString("0.00")</td></tr>
+            }
+            </tbody>
+        </table></div>
+        <p class="text-muted small mb-0">Only admins have full user-ID purchasing reports and operator approval actions.</p>
+    </section>
+</div>
+
+<script>
+(function () {
+    const endpoint = '@Url.Action("InventorySnapshot", "Operations")';
+    const threshold = @lowStockLimit;
+    const rows = [...document.querySelectorAll('[data-paw-product-id]')];
+    const ids = rows.map(r => r.dataset.pawProductId);
+    let newestMovementId = @(Model.RecentInventoryMovements.FirstOrDefault()?.Id ?? 0);
+    let inFlight = false;
+    async function updateInventory() {
+        if (inFlight || document.hidden) return;
+        inFlight = true;
+        try {
+            const qs = new URLSearchParams();
+            ids.forEach(id => qs.append('ids', id));
+            const response = await fetch(endpoint + '?' + qs.toString(), { credentials: 'same-origin' });
+            if (!response.ok) return;
+            const data = await response.json();
+            const lowCountElement = document.getElementById('live-low-stock-count');
+            lowCountElement.textContent = data.lowStockCount;
+            lowCountElement.classList.toggle('text-danger', data.lowStockCount > 0);
+            document.getElementById('live-restock-alert').classList.toggle('d-none', data.lowStockCount === 0);
+            rows.forEach(row => {
+                const p = data.items.find(x => String(x.id) === row.dataset.pawProductId);
+                if (!p) return;
+                const stock = row.querySelector('[data-paw-stock]');
+                const warning = row.querySelector('[data-paw-restock]');
+                const previousStock = Number(stock.textContent.trim());
+                if (p.stock < previousStock) {
+                    row.classList.add('table-warning');
+                    const decrease = row.querySelector('[data-paw-decrease]');
+                    decrease.textContent = `↓ ${previousStock - p.stock} units since last check`;
+                    decrease.classList.remove('d-none');
+                }
+                stock.textContent = p.stock;
+                stock.classList.toggle('text-danger', p.stock <= threshold);
+                warning.classList.toggle('d-none', p.stock > threshold);
+                row.querySelector('[data-paw-visibility]').textContent = p.isActive ? 'Visible' : 'Hidden';
+            });
+            if (data.newestMovementId > newestMovementId) {
+                document.getElementById('inventory-update-alert').classList.remove('d-none');
+                newestMovementId = data.newestMovementId;
+            }
+        } catch (_) { /* Keep the existing page usable if temporarily offline. */ }
+        finally { inFlight = false; }
+    }
+    setInterval(updateInventory, 20000);
+})();
+</script>

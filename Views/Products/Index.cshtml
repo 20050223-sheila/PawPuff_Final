@@ -156,13 +156,14 @@
     }
 </style>
 
-<section class="paw-shop-hero mb-4">
-    <div class="small fw-bold mb-2">PAWPUFF PET SHOP</div>
-    <h1 class="display-6">Little things, big tail wags.</h1>
-    <p class="mb-0">
-        Food, toys, treats and everyday essentials for your pets.
-    </p>
-</section>
+<header class="paw-page-hero paw-page-hero-shop mb-4">
+    <div class="paw-page-hero-copy">
+        <span class="paw-cart-eyebrow">🐾 PAWPUFF PET SHOP</span>
+        <h1 class="paw-page-hero-title">Little things, big tail wags. <span class="paw-heart" aria-hidden="true">♡</span></h1>
+        <p>Food, toys, treats and everyday essentials for your pets.</p>
+    </div>
+    <img class="paw-page-hero-pets" src="~/images/brand/paws-header.png" alt="" />
+</header>
 
 <form method="get" asp-action="Index"
       class="paw-shop-filter row g-3 mb-4">
@@ -218,7 +219,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="h5 fw-bold mb-0">Discover our products</h2>
 
-    @if (User.IsInRole("Admin") || User.IsInRole("Seller"))
+    @if (User.IsInRole("Admin") || User.IsInRole("Operator"))
     {
         <a class="btn paw-shop-btn" asp-action="Create">
             + Add product

@@ -1,3 +1,9 @@
-using Microsoft.AspNetCore.Authorization;using Microsoft.AspNetCore.Mvc;using Microsoft.EntityFrameworkCore;using PawPuff.Data;
+using Microsoft.AspNetCore.Mvc;
+
 namespace PawPuff.Controllers;
-[Authorize(Roles="Seller,Admin")] public class SellerController(ShopDbContext db):Controller {public async Task<IActionResult> Index()=>View(await db.Products.OrderBy(p=>p.Name).ToListAsync());}
+
+// Legacy route retired: PawPuff is a single-brand shop, not a marketplace.
+public class SellerController : Controller
+{
+    public IActionResult Index() => NotFound();
+}

@@ -1,2 +1,19 @@
-@{ViewData["Title"]="Register";}
-<div class="auth-card mx-auto"><h1 class="h3 mb-4">Create your account</h1><form asp-action="Register" method="post"><div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div><label class="form-label">Display name</label><input class="form-control mb-3" name="displayName" required/><label class="form-label">Email</label><input class="form-control mb-3" type="email" name="email" required/><label class="form-label">Password (at least 6 characters)</label><input class="form-control mb-3" type="password" name="password" minlength="6" required/><label class="form-label">Account type</label><select class="form-select mb-4" name="role"><option value="Buyer">Buyer</option><option value="Seller">Seller</option></select><button class="btn btn-primary w-100">Register</button></form></div>
+@{ ViewData["Title"] = "Register"; }
+<div class="paw-auth-scene">
+  <div class="auth-card mx-auto">
+    <div class="paw-auth-mascot" aria-hidden="true">🐱 <span>♡</span> 🐶</div>
+    <h1 class="h3 mb-3">Create your PawPuff account</h1>
+    <p class="text-muted small mb-4">Join as a customer to shop, track orders and save delivery addresses.</p>
+    <form asp-action="Register" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <label class="form-label" for="displayName">Display name</label>
+        <input class="form-control mb-3" id="displayName" name="displayName" required maxlength="100" />
+        <label class="form-label" for="email">Email</label>
+        <input class="form-control mb-3" id="email" type="email" name="email" required />
+        <label class="form-label" for="password">Password (at least 6 characters)</label>
+        <input class="form-control mb-4" id="password" type="password" name="password" minlength="6" required />
+        <button class="btn btn-paw w-100" type="submit">Register</button>
+    </form>
+</div>
+</div>

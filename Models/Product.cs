@@ -10,4 +10,6 @@ public class Product {
  [Range(0, 100000)] public int Stock {get;set;}
  public string ImageUrl {get;set;} = "https://placehold.co/600x400?text=Pet+Product";
  public bool IsActive {get;set;} = true;
+ // Set only for products published from the Operations dashboard.
+ public bool IsNewArrival {get;set;} = false;
 }

@@ -12,29 +12,32 @@ public class ShopDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
-    // ÒÑÓĞµÄÉÌÆ·±í
+    // å·²æœ‰çš„å•†å“è¡¨
     public DbSet<Product> Products => Set<Product>();
 
-    // ÒÑÓĞµÄ¶©µ¥±í
+    // å·²æœ‰çš„è®¢å•è¡¨
     public DbSet<Order> Orders => Set<Order>();
 
-    // ÒÑÓĞµÄ¶©µ¥Ã÷Ï¸±í
+    // å·²æœ‰çš„è®¢å•æ˜ç»†è¡¨
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
-    // ĞÂÔö£º¹ºÎï³µ±í
+    // æ–°å¢ï¼šè´­ç‰©è½¦è¡¨
     public DbSet<CartItem> CartItems => Set<CartItem>();
+
+    public DbSet<InventoryMovement> InventoryMovements => Set<InventoryMovement>();
+    public DbSet<ProductReviewRequest> ProductReviewRequests => Set<ProductReviewRequest>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        // ±£Áô ASP.NET Core Identity µÄÓÃ»§ºÍ½ÇÉ«ÅäÖÃ
+        // ä¿ç•™ ASP.NET Core Identity çš„ç”¨æˆ·å’Œè§’è‰²é…ç½®
         base.OnModelCreating(builder);
 
-        // ÉÌÆ·¼Û¸ñ±£ÁôÁ½Î»Ğ¡Êı
+        // å•†å“ä»·æ ¼ä¿ç•™ä¸¤ä½å°æ•°
         builder.Entity<Product>()
             .Property(p => p.Price)
             .HasPrecision(18, 2);
 
-        // ¶©µ¥½ğ¶î±£ÁôÁ½Î»Ğ¡Êı
+        // è®¢å•é‡‘é¢ä¿ç•™ä¸¤ä½å°æ•°
         builder.Entity<Order>()
             .Property(o => o.Discount)
             .HasPrecision(18, 2);
@@ -51,7 +54,7 @@ public class ShopDbContext : IdentityDbContext<ApplicationUser>
             .Property(o => o.Total)
             .HasPrecision(18, 2);
 
-        // ¶©µ¥Ã÷Ï¸½ğ¶î±£ÁôÁ½Î»Ğ¡Êı
+        // è®¢å•æ˜ç»†é‡‘é¢ä¿ç•™ä¸¤ä½å°æ•°
         builder.Entity<OrderItem>()
             .Property(i => i.LineTotal)
             .HasPrecision(18, 2);
@@ -60,20 +63,24 @@ public class ShopDbContext : IdentityDbContext<ApplicationUser>
             .Property(i => i.UnitPrice)
             .HasPrecision(18, 2);
 
-        // ĞÂÔö£ºÅäÖÃ¹ºÎï³µ±í
+        // æ–°å¢ï¼šé…ç½®è´­ç‰©è½¦è¡¨
+        builder.Entity<InventoryMovement>().HasIndex(x => x.ProductId);
+        builder.Entity<InventoryMovement>().HasIndex(x => x.OccurredAt);
+        builder.Entity<ProductReviewRequest>().HasIndex(x => new { x.Status, x.SubmittedAt });
+
         builder.Entity<CartItem>(entity =>
         {
-            // Ò»Î»ÓÃ»§µÄÒ»ÖÖÉÌÆ·Ö»ÄÜÓĞÒ»Ìõ¹ºÎï³µ¼ÇÂ¼
+            // ä¸€ä½ç”¨æˆ·çš„ä¸€ç§å•†å“åªèƒ½æœ‰ä¸€æ¡è´­ç‰©è½¦è®°å½•
             entity.HasIndex(c => new { c.UserId, c.ProductId })
                 .IsUnique();
 
-            // ¹ºÎï³µÓëÓÃ»§½¨Á¢¹ØÁª
+            // è´­ç‰©è½¦ä¸ç”¨æˆ·å»ºç«‹å…³è”
             entity.HasOne(c => c.User)
                 .WithMany()
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // ¹ºÎï³µÓëÉÌÆ·½¨Á¢¹ØÁª
+            // è´­ç‰©è½¦ä¸å•†å“å»ºç«‹å…³è”
             entity.HasOne(c => c.Product)
                 .WithMany()
                 .HasForeignKey(c => c.ProductId)

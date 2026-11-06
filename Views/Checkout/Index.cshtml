@@ -10,24 +10,19 @@
     decimal discount = (decimal)ViewBag.Discount;
 
     decimal total = subtotal + shipping - discount;
+    var savedAddresses = ViewBag.SavedAddresses as List<string> ?? new List<string>();
 }
 
 <div class="paw-checkout-page">
 
-    <!-- Page heading -->
-    <div class="mb-4">
-        <span class="paw-cart-eyebrow">
-            🐾 PAWPUFF CHECKOUT
-        </span>
-
-        <h1 class="h2 fw-bold mt-2 mb-2">
-            Order confirmation &amp; payment
-        </h1>
-
-        <p class="text-muted mb-0">
-            Review your order and complete your demo checkout.
-        </p>
-    </div>
+    <header class="paw-page-hero paw-page-hero-checkout mb-4">
+        <div class="paw-page-hero-copy">
+            <span class="paw-cart-eyebrow">🐾 PAWPUFF CHECKOUT</span>
+            <h1 class="paw-page-hero-title">Checkout &amp; Payment <span class="paw-heart" aria-hidden="true">♡</span></h1>
+            <p>Confirm your order and complete your demo payment.</p>
+        </div>
+        <img class="paw-page-hero-pets" src="~/images/brand/paws-header.png" alt="" />
+    </header>
 
     <!-- Demo notice -->
     <div class="paw-demo-notice mb-4">
@@ -149,15 +144,43 @@
                         2. Shipping address
                     </h2>
 
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="RecipientName" class="form-label fw-semibold">Recipient name *</label>
+                            <input asp-for="RecipientName" class="form-control" maxlength="100" autocomplete="name"
+                                   placeholder="Full name" required />
+                            <span asp-validation-for="RecipientName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="RecipientPhone" class="form-label fw-semibold">Contact phone *</label>
+                            <input asp-for="RecipientPhone" class="form-control" type="tel" maxlength="30" autocomplete="tel"
+                                   placeholder="e.g. +44 7700 900123" required />
+                            <span asp-validation-for="RecipientPhone" class="text-danger small"></span>
+                        </div>
+                    </div>
+
                     <label asp-for="ShippingAddress"
                            class="form-label fw-semibold">
                         Delivery address
                     </label>
 
+                    @if (savedAddresses.Count > 0)
+                    {
+                        <label for="pastAddress" class="form-label fw-semibold">Use a previous address</label>
+                        <select id="pastAddress" class="form-select mb-3">
+                            <option value="">Enter a new address</option>
+                            @foreach (var address in savedAddresses)
+                            {
+                                <option value="@address">@address</option>
+                            }
+                        </select>
+                        <p class="small text-muted">Selecting an address fills the field below. You can still edit it.</p>
+                    }
+
                     <textarea asp-for="ShippingAddress"
                               class="form-control"
                               rows="4"
-                              placeholder="Full name, street address, city, postcode"></textarea>
+                              placeholder="Street address, city, postcode, country"></textarea>
 
                     <span asp-validation-for="ShippingAddress"
                           class="text-danger small">
@@ -169,16 +192,35 @@
 
                 </section>
 
+                <!-- 3. Order notes -->
+                <section class="panel mb-4">
+
+                    <h2 class="h5 fw-bold mb-3">
+                        3. Order notes
+                    </h2>
+
+                    <label asp-for="Notes"
+                           class="form-label">
+                        Optional notes
+                    </label>
+
+                    <textarea asp-for="Notes"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Delivery instructions or notes..."></textarea>
+
+                </section>
+
             </div>
 
             <!-- Right column -->
             <div class="col-lg-5">
 
-                <!-- 3. Payment method -->
+                <!-- 4. Payment method -->
                 <section class="panel mb-4">
 
                     <h2 class="h5 fw-bold mb-3">
-                        3. Payment method
+                        4. Payment method
                     </h2>
 
                     <p class="small text-muted">
@@ -260,25 +302,6 @@
 
                 </section>
 
-                <!-- 4. Order notes -->
-                <section class="panel mb-4">
-
-                    <h2 class="h5 fw-bold mb-3">
-                        4. Order notes
-                    </h2>
-
-                    <label asp-for="Notes"
-                           class="form-label">
-                        Optional notes
-                    </label>
-
-                    <textarea asp-for="Notes"
-                              class="form-control"
-                              rows="3"
-                              placeholder="Delivery instructions or notes..."></textarea>
-
-                </section>
-
                 <!-- Confirm demo payment -->
                 <button type="submit"
                         class="btn btn-paw btn-lg w-100">
@@ -312,4 +335,15 @@
 @section Scripts
 {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('pastAddress')?.addEventListener('change', function () {
+            const address = document.getElementById('ShippingAddress');
+            if (address && this.value) {
+                address.value = this.value;
+                address.dispatchEvent(new Event('input', { bubbles: true }));
+            } else if (address && !this.value) {
+                address.value = '';
+            }
+        });
+    </script>
 }

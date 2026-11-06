@@ -1147,3 +1147,439 @@ footer,
         font-size: 23px;
     }
 }
+
+/* ===== My Account and stable header (Nov 2026) ===== */
+/* The Bootstrap sticky header must be opaque to avoid overlapping the scrolling text. */
+.paw-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    background: #fbfaf6 !important;
+    border-bottom: 1px solid #e2ebe0;
+    box-shadow: 0 3px 12px rgba(35, 65, 45, 0.06);
+}
+.paw-navbar .container { min-width: 0; }
+.paw-navbar .paw-brand { white-space: nowrap; flex-shrink: 0; }
+.paw-navbar .navbar-collapse { background: #fbfaf6; }
+.paw-navbar .nav-link { white-space: nowrap; }
+.paw-account-page { padding-bottom: 30px; }
+.paw-account-id { display: inline-block; overflow-wrap: anywhere; white-space: normal; color: #315a41; }
+.paw-account-link-card {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; padding: 22px; height: 100%;
+    border: 1px solid #e2e9e0; border-radius: 18px; background: #fff;
+    text-decoration: none; color: #263c30;
+}
+.paw-account-link-card:hover { border-color: #47795b; color: #315a41; }
+.paw-account-link-card strong { display: block; }
+.paw-account-link-card small { display: block; color: #728474; }
+.paw-account-list-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; border-bottom: 1px solid #e4eae3; padding: 15px 0; }
+.paw-account-list-row:first-child { padding-top: 0; }
+.paw-account-list-row:last-child { border-bottom: none; padding-bottom: 0; }
+.paw-address-row { display: flex; gap: 10px; padding: 14px 0; border-bottom: 1px solid #e4eae3; }
+.paw-address-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.paw-address-text { white-space: pre-line; overflow-wrap: anywhere; }
+@media (max-width: 767px) {
+    .paw-account-list-row { align-items: flex-start; }
+    .paw-navbar .navbar-collapse { padding-bottom: 12px; }
+}
+
+/* ===== PawPuff Operations / New arrivals ===== */
+.paw-new-arrivals { background: #f0f6ee; border-radius: 24px; padding: 28px; }
+.paw-new-product { position: relative; overflow: hidden; }
+.paw-new-badge { position: absolute; top: 12px; left: 12px; z-index: 2; font-weight: 800;
+    font-size: 11px; padding: 6px 11px; letter-spacing: .1em; border-radius: 999px;
+    color: #fff; background: #3d7352; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+.paw-operations { padding-bottom: 28px; }
+.paw-operation-form { max-width: 850px; }
+.paw-operation-table td, .paw-operation-table th { vertical-align: middle; }
+.paw-operation-thumb { width: 64px; height: 55px; object-fit: cover; border-radius: 10px;
+    border: 1px solid #e1e8de; background: #f7faf5; }
+@media (max-width: 576px) { .paw-new-arrivals { padding: 18px 12px; border-radius: 16px; } }
+
+
+/* ===== PawPuff Cute Finish Pack ===== */
+body.paw-body {
+    background-color: #fbfaf6;
+    background-image:
+        radial-gradient(circle at 24px 24px, rgba(71,121,91,.05) 0 10px, transparent 10px),
+        radial-gradient(circle at 120px 80px, rgba(243,217,172,.10) 0 14px, transparent 14px),
+        linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.92));
+    background-size: 180px 180px, 220px 220px, auto;
+}
+
+.paw-navbar {
+    background: rgba(251,250,246,.96) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e3ebe0;
+    box-shadow: 0 8px 22px rgba(38,60,48,.05);
+}
+
+.paw-brand::after {
+    content: "  🐶🐱";
+    font-size: .72em;
+    opacity: .8;
+}
+
+.paw-home-hero,
+.paw-cart-panel,
+.paw-cart-summary,
+.paw-cart-empty,
+.paw-demo-notice,
+.paw-checkout-page .panel,
+.paw-home-bottom,
+.paw-home-category,
+.paw-new-empty {
+    background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(252,249,244,.96));
+    border: 1px solid #e5ece2;
+    box-shadow: 0 10px 26px rgba(38,60,48,.06);
+}
+
+.paw-home-hero,
+.paw-cart-panel,
+.paw-cart-summary,
+.paw-cart-empty,
+.paw-checkout-page .panel,
+.paw-home-bottom {
+    border-radius: 24px;
+}
+
+.paw-home-hero {
+    position: relative;
+    overflow: hidden;
+}
+
+.paw-home-hero::after {
+    content: "🐾  🐾  🐾";
+    position: absolute;
+    right: 28px;
+    bottom: 18px;
+    font-size: 1.4rem;
+    opacity: .22;
+    letter-spacing: 10px;
+}
+
+.paw-home-category,
+.paw-home-product,
+.paw-new-product,
+.paw-cart-item,
+.paw-operation-table tbody tr {
+    transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+
+.paw-home-category:hover,
+.paw-home-product:hover,
+.paw-new-product:hover,
+.paw-cart-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px rgba(38,60,48,.08);
+}
+
+.paw-home-category-icon,
+.paw-cart-empty-icon,
+.paw-home-decoration,
+.paw-checkout-page .payment-option {
+    box-shadow: 0 10px 18px rgba(38,60,48,.06);
+}
+
+.paw-cart-page,
+.paw-checkout-page {
+    position: relative;
+}
+
+.paw-cart-page::before,
+.paw-checkout-page::before {
+    content: "🐾";
+    position: absolute;
+    top: -6px;
+    right: 10px;
+    font-size: 2rem;
+    opacity: .18;
+}
+
+.paw-cart-panel-heading h2::before,
+.paw-checkout-page .panel h2::before,
+.paw-checkout-page .panel h3::before {
+    content: "🐾 ";
+}
+
+.form-control,
+.form-select {
+    border-radius: 14px;
+    border-color: #dbe5d8;
+    box-shadow: none;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #8ab196;
+    box-shadow: 0 0 0 .2rem rgba(71,121,91,.12);
+}
+
+.paw-checkout-page .payment-option {
+    background: #fffdfa;
+    border-radius: 18px;
+}
+
+.paw-operation-table tbody tr:hover {
+    background: #fcf9f1;
+}
+
+.paw-operation-thumb {
+    width: 70px;
+    height: 70px;
+    border-radius: 16px;
+    object-fit: cover;
+    background: #f6f8f3;
+    border: 1px solid #e4ebe0;
+}
+
+.alert-success {
+    border-radius: 16px;
+    border: 1px solid #d6eadb;
+}
+
+.alert-danger,
+.alert-warning,
+.alert-info {
+    border-radius: 16px;
+}
+
+@media (max-width: 768px) {
+    .paw-brand::after {
+        content: "";
+    }
+
+    .paw-home-hero::after,
+    .paw-cart-page::before,
+    .paw-checkout-page::before {
+        display: none;
+    }
+}
+/* ============================================================
+   PAWPUFF BRAND UI — approved Cream & Sage Pet Illustration look
+   VISUAL ONLY: does not replace database images, product data or
+   modify buying/payment/permission behavior.
+   ============================================================ */
+:root {
+    --paw-ink: #4c3c31;
+    --paw-primary: #637e4a;
+    --paw-soft: #e8eedb;
+    --paw-accent: #ffcf94;
+    --paw-cream: #fff8ed;
+    --paw-sage: #dce9c4;
+    --paw-peach: #fbe1cc;
+    --paw-brown: #59453a;
+    --paw-shadow: 0 12px 36px rgba(91, 78, 59, .08);
+}
+html { scroll-behavior: smooth; }
+body.paw-body {
+    color: var(--paw-brown);
+    background: #fffaf2;
+    background-image: radial-gradient(ellipse at 12% 12%, #fff4e5 0, transparent 40%),
+                      radial-gradient(ellipse at 93% 24%, #f6f5e9 0, transparent 36%);
+    background-attachment: fixed;
+    font-family: 'Trebuchet MS', 'Segoe UI', Arial, sans-serif;
+}
+body.paw-body > main.container { max-width: 1260px; min-height: 58vh; }
+h1, h2, h3, h4, h5, h6 { color: var(--paw-brown); letter-spacing: -.025em; }
+a { color: #5c7847; }
+a:hover { color: #425a35; }
+.paw-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1040;
+    border-bottom: 1px solid #f2e9dd;
+    background: rgba(255, 250, 242, .98) !important;
+    box-shadow: 0 5px 25px rgba(91, 74, 53, .055);
+    backdrop-filter: blur(12px);
+}
+.paw-navbar .container { max-width: 1260px; }
+.paw-brand { display: inline-flex; align-items: center; gap: .35rem; color: #5b4639 !important; font-weight: 900; line-height: 1.2; }
+.paw-brand .paw-brand-icon { font-size: 1.62em; line-height: 1; filter: saturate(.8); }
+.paw-brand .paw-brand-name { font-family: 'Trebuchet MS','Arial Rounded MT Bold',sans-serif; font-weight: 900; letter-spacing: -.055em; }
+.paw-brand::after { display: none !important; }
+.paw-navbar .nav-link { color: #594639; font-weight: 700; border-radius: 28px; padding: .46rem .88rem !important; transition: background .2s, color .2s; }
+.paw-navbar .nav-link:hover, .paw-navbar .nav-link:focus { color: #527341; background: #ecf1df; }
+.paw-nav-mini { margin-right: .22rem; color: #8b9a6a; font-size: .95em; }
+.paw-navbar .btn { border-radius: 999px; padding: .42rem .95rem; }
+.paw-footer, footer { border-top: 1px solid #e3e9d8; background: #eaf1e1; color: #607754; }
+.btn-paw, .btn-pawpuff, .btn-primary, .paw-shop-btn { background: linear-gradient(130deg,#78905c,#557347) !important; border: 1px solid #657f51 !important; color: #fff !important; border-radius: 999px; box-shadow: 0 5px 11px rgba(85,115,71,.10); font-weight: 700; }
+.btn-paw:hover, .btn-pawpuff:hover, .btn-primary:hover, .paw-shop-btn:hover { background: #47663b !important; border-color:#47663b !important; color:white !important; transform: translateY(-1px); }
+.btn-outline-paw, .btn-outline-primary, .btn-outline-secondary { border: 1px solid #bdcaaa; border-radius: 999px; color: #597545; background: #fffefa; }
+.btn-outline-paw:hover, .btn-outline-primary:hover, .btn-outline-secondary:hover { background: #edf2df; color:#405a37; border-color:#9caf8a; }
+.form-control, .form-select, textarea.form-control { border:1px solid #deded0; background: #fffefa; border-radius: 14px; min-height: 43px; color:#56473b; }
+.form-control:focus, .form-select:focus { border-color: #aabf93; background:#fff; box-shadow:0 0 0 .2rem rgba(120,155,98,.15); }
+.form-label { color:#5e554b; }
+.panel, .filter-panel, .auth-card, .form-panel, .summary-card, .paw-cart-panel, .paw-cart-summary, .paw-cart-empty, .paw-account-sidebar {
+    background: #fffefa; border: 1px solid #e9e1d5; border-radius: 24px; box-shadow: var(--paw-shadow);
+}
+.panel, .auth-card, .form-panel, .summary-card { padding: 1.5rem; }
+.paw-shop-card, .paw-home-product, .paw-product-card {
+    background:#fffefa; border:1px solid #e9dfd1 !important; border-radius: 24px !important;
+    box-shadow: 0 8px 22px rgba(91, 78, 59, .045); overflow:hidden;
+}
+.paw-shop-card:hover, .paw-home-product:hover, .paw-product-card:hover { transform:translateY(-4px); box-shadow: 0 16px 28px rgba(91,78,59,.10); }
+.paw-shop-photo, .paw-home-product-image, .paw-product-image { background: linear-gradient(#fff9ef,#f5f4ea); }
+.paw-shop-photo img, .paw-home-product-image img, .paw-product-image img { object-fit:contain !important; }
+.paw-shop-name a, .paw-home-product-title a, .paw-product-title a { color:#534137; }
+.paw-shop-price, .paw-home-product-price, .paw-price { color:#557340 !important; }
+.paw-cart-eyebrow, .paw-home-section-label, .paw-home-label { color: #84955d; font-size:.79rem; font-weight:800; letter-spacing:.13em; }
+/* Big brand masthead: uses a local crop of the user's approved design, not a fabricated product photo. */
+.paw-home-hero.paw-brand-hero {
+    min-height: 460px; position:relative; display:flex; align-items:center; padding: 50px 52px;
+    overflow:hidden; isolation:isolate; border-radius:32px;
+    background: linear-gradient(115deg, #fff2e3 0%, #fff7e9 40%, #e8edd9 80%, #f3e5cc 100%);
+    border:1px solid #f1e4d1;
+    box-shadow:var(--paw-shadow);
+}
+.paw-brand-hero::before {
+    content:""; position:absolute; z-index:-1; width:76%; height:115%; border-radius:45% 48% 0 0;
+    background: linear-gradient(125deg,#cad6a8bb,#e6e6c2aa); right:-3%; bottom:-51%; transform:rotate(-7deg);
+}
+.paw-brand-hero-copy { position: relative; z-index:3; max-width: 47%; }
+.paw-brand-headline { max-width:560px; font-family:'Trebuchet MS','Arial Rounded MT Bold',sans-serif; font-weight:900; color:#60473a; font-size:clamp(2.4rem,4.3vw,4.2rem); line-height:1.08; letter-spacing:-.055em; }
+.paw-brand-headline em { font-style:normal; color:#718859; }
+.paw-brand-headline span { color:#eb8d82; font-weight:700; }
+.paw-brand-hero-copy p { font-size:1.06rem; max-width:410px; margin: 22px 0 26px; color:#65574b; }
+.paw-brand-hero-button { min-width:190px; padding:.8rem 1.3rem; font-size:1.04rem; }
+.paw-brand-hero-pets { position:absolute; z-index:2; bottom:-3px; right:-23px; width:min(68%,800px); height:auto; max-height:420px; object-fit:contain; object-position:right bottom; pointer-events:none; }
+.paw-hero-sparkle { position:absolute; z-index:1; pointer-events:none; }
+.paw-hero-sparkle-one { color:#e9b278; top:23px; right:35px; font-size:1.8rem; }
+.paw-hero-sparkle-two { color:#ee9990; font-size:3rem; top:34px; left:49%; }
+/* Existing pet categories remain Cat and Dog, with illustrated mascots. */
+.paw-home-category { min-height:168px; padding:20px 28px; border:1px solid #eee5d8; border-radius:26px; box-shadow:0 8px 20px rgba(91,78,59,.045); }
+.paw-cat-category { background:linear-gradient(110deg,#fff2e6,#fce8de); color:#614a3c; }
+.paw-dog-category { background:linear-gradient(115deg,#eef2df,#e0edda); color:#4b6145; }
+.paw-home-mascot { height:132px; width:132px; flex-shrink:0; object-fit:contain; filter:drop-shadow(0 7px 9px #8a7a6633); }
+.paw-home-category h2 { color:inherit; }
+.paw-home-category-arrow { display:grid; place-items:center; border-radius:50%; width:36px; height:36px; background:#fff8e9a8; color:#637953; flex-shrink:0; font-size:1.35rem; }
+.paw-new-arrivals { background:linear-gradient(117deg,#fff0e1,#fffaef 60%,#ecf3e2); border:1px solid #eee2d4; border-radius:30px; padding:32px; box-shadow:var(--paw-shadow); }
+.paw-new-arrivals h2::before, .paw-home > section h2::before { content:"🐾 "; font-size:.72em; }
+.paw-home-bottom { background:linear-gradient(100deg,#e8eecf,#fbeacb); border:1px solid #e4e2cc; border-radius:26px; }
+/* Shared illustrated mastheads for Cart, Checkout, Orders, Account, Shop. */
+.paw-page-hero {
+    min-height:225px; position:relative; overflow:hidden; isolation:isolate;
+    display:flex; align-items:center; padding:32px 42px; border-radius:30px;
+    border:1px solid #efe3d3; background:linear-gradient(105deg,#fff3e5 0%,#fffaef 49%,#e4eccc 100%);
+    box-shadow:var(--paw-shadow);
+}
+.paw-page-hero::after { content:""; position:absolute; z-index:-1; right:-9%; bottom:-95px; height:185px; width:90%; background:#c8d9a3; opacity:.8; border-radius:52% 48% 0 0; }
+.paw-page-hero::before { content:"🐾"; position:absolute; right:12px; top:16px; font-size:2rem; opacity:.18; color:#c48d6a; }
+.paw-page-hero-copy { position:relative; z-index:2; max-width:65%; }
+.paw-page-hero-title { margin:.72rem 0 .55rem; font-size:clamp(1.8rem,3.0vw,2.8rem); font-weight:900; line-height:1.15; color:#587543; }
+.paw-heart { color:#e3a36f; font-weight:700; }
+.paw-page-hero p { color:#67735a; font-size:1.03rem; margin:0 0 .8rem; }
+.paw-page-hero-pets { position:absolute; right:10px; bottom:-9px; width:37%; max-width:430px; max-height:225px; object-fit:contain; object-position:bottom right; pointer-events:none; }
+.paw-page-hero .paw-cart-continue { display:inline-block; background:#fff9ee; border:1px solid #ebdfd2; padding:.42rem 1rem; border-radius:99px; color:#647f50; margin-top:.15rem; }
+/* Cart */
+.paw-cart-page::before, .paw-checkout-page::before { display:none; }
+.paw-cart-panel, .paw-cart-summary { overflow:hidden; border-radius:24px; }
+.paw-cart-panel-heading { background:#f2f2e6; border-bottom:1px solid #e6e4d5; }
+.paw-cart-count { background:#e8efdb; color:#617b4d; }
+.paw-cart-item { background:#fffefa; border-bottom:1px dashed #e7e2d8; }
+.paw-cart-item:hover { background:#fffaf3; transform:none; }
+.paw-cart-image { width:116px; height:116px; background:#fcf4e9; border:1px solid #f1e9d9; border-radius:19px; }
+.paw-cart-product-name { color:#563f34; }
+.paw-cart-line-total, .paw-cart-summary-total strong { color:#54763f; }
+.paw-cart-shipping-note { border-radius:16px; background:#f1f4e6; }
+.paw-cart-summary { background:#fffefa; }
+.paw-cart-update-form input { border-radius:10px; }
+.paw-cart-remove { color:#b77c63; }
+/* Checkout: preserve notes on the left and payment on the right. */
+.paw-checkout-page .panel { border-radius:24px; background:#fffefa; }
+.paw-checkout-page .panel h2 { color:#4c6140; }
+.paw-checkout-page .panel h2::before { content:"🐾 "; font-size:.85em; }
+.paw-checkout-page .payment-option { border:1px solid #e4e4d6; background:#fffaf2; border-radius:18px; }
+.paw-checkout-page .payment-option:has(input:checked) { border-color:#a7bf93; background:#eef5e7; box-shadow:inset 0 0 0 1px #bdcfa8; }
+.paw-checkout-page .summary-lines > div:last-child { background:#edf3e3; padding:10px 12px; border-radius:14px; }
+.paw-demo-notice { background:#fff3dd; border:1px solid #f1deba; border-radius:18px; color:#725b3f; padding:1rem 1.3rem; }
+/* Account + orders: decorate real order rows, never manufacture orders. */
+.paw-account-page .panel { border-radius:23px; }
+.paw-account-sidebar { padding:16px; height:100%; background:linear-gradient(155deg,#f4f7e7,#fff9ef); }
+.paw-account-sidebar-heading { color:#5b784a; font-weight:900; padding:13px 14px 17px; }
+.paw-side-link { display:flex; align-items:center; gap:10px; padding:13px 14px; margin-bottom:8px; border-radius:16px; color:#584a40; font-weight:700; text-decoration:none; }
+.paw-side-link span { flex:1; }
+.paw-side-link:hover, .paw-side-active { background:#e4edcc; color:#4c6939; }
+.paw-sidebar-mascots { margin:25px 3px 5px; font-size:2.0rem; text-align:center; opacity:.75; }
+.paw-account-information { background:linear-gradient(120deg,#fffdfa,#f8f8e9); }
+.paw-soft-label { border-radius:30px; padding:7px 12px; background:#edf2df; color:#607a4c; font-size:.8rem; font-weight:700; }
+.paw-account-data > div { display:grid; grid-template-columns:minmax(90px,23%) 1fr; gap:12px; padding:11px 0; border-bottom:1px solid #f0eadf; }
+.paw-account-data > div:last-child { border-bottom:0; }
+.paw-account-data dt { font-weight:700; color:#82776a; }
+.paw-account-data dd { margin:0; min-width:0; overflow-wrap:anywhere; }
+.paw-account-id { white-space:normal; overflow-wrap:anywhere; color:#607c4b; }
+.paw-account-link-card { background:linear-gradient(110deg,#f2f5e8,#fffbf2); border:1px solid #e4e7d9; border-radius:20px; box-shadow:0 8px 18px rgba(91,78,59,.045); }
+.paw-account-link-card:hover { background:#edf4dc; }
+.paw-action-icon { font-size:1.8rem; background:white; border-radius:15px; width:52px; height:52px; display:grid; place-items:center; }
+.paw-address-row { border-bottom:1px dashed #e9e5d9; }
+.paw-order-list { display:grid; gap:14px; }
+.paw-order-card { display:flex; gap:18px; justify-content:space-between; align-items:center; border-radius:23px; border:1px solid #e9e3d7; background:#fffefa; box-shadow:var(--paw-shadow); padding:21px 24px; }
+.paw-order-card-main { display:flex; align-items:center; gap:18px; min-width:0; }
+.paw-order-icon { display:grid; place-items:center; width:66px; height:66px; flex-shrink:0; font-size:2rem; border-radius:18px; background:#f9f0de; }
+.paw-order-card-end { min-width:135px; }
+.paw-status-badge { display:inline-flex; border-radius:30px; font-size:.78rem; font-weight:800; padding:5px 12px; background:#fbe5ba; color:#98652b; }
+.paw-status-completed { background:#d8edc6; color:#487744; }
+.paw-status-cancelled { background:#ececec; color:#676767; }
+.paw-status-paid { background:#fbefcb; color:#886c30; }
+/* Log in / Register: same fields and POST behavior. */
+.paw-auth-scene { padding:38px 15px 56px; position:relative; background:radial-gradient(circle at 50% 10%,#fff0db 0,transparent 55%); border-radius:30px; }
+.paw-auth-scene .auth-card { margin-top:0; max-width:500px; border-radius:30px; padding:32px; }
+.paw-auth-mascot { text-align:center; font-size:2.9rem; margin-bottom:12px; }
+.paw-auth-mascot span { color:#e49d8c; }
+.paw-auth-scene h1 { color:#587545; font-weight:900; text-align:center; }
+/* Existing success and admin/ops remain usable; unified cards. */
+.paw-success-card, .paw-inventory-warning, .paw-operations .panel, .paw-operations .stat-card { border-radius:24px; }
+.paw-success-card { background:linear-gradient(145deg,#fffdf7,#f6f8eb); border:1px solid #e6e7d6; box-shadow:var(--paw-shadow); }
+.paw-success-icon { background:#d5eabf; color:#4a7542; }
+.paw-success-title { color:#537141; }
+.paw-operations .stat-card { background:linear-gradient(120deg,#edf3df,#fff6e8); border:1px solid #e3e9db; }
+.paw-operations .panel { background:#fffefa; }
+/* Keep motion subtle and accessible. */
+@media (prefers-reduced-motion:reduce) {
+    html { scroll-behavior:auto; }
+    .paw-home-product,.paw-home-category,.btn,.paw-shop-card,.paw-product-card { transition:none!important; }
+}
+@media (max-width: 991.98px) {
+    .paw-brand-hero-copy { max-width:58%; }
+    .paw-brand-hero-pets { width:63%; right:-60px; }
+    .paw-home-hero.paw-brand-hero { min-height:410px; padding:40px 34px; }
+    .paw-page-hero-pets { width:39%; }
+}
+@media (max-width: 767.98px) {
+    .paw-home-hero.paw-brand-hero { min-height:460px; padding:29px 23px 225px; align-items:flex-start; }
+    .paw-brand-hero-copy { max-width:100%; }
+    .paw-brand-headline { max-width:500px; font-size:clamp(2.1rem,7vw,3.0rem); }
+    .paw-brand-hero-copy p { font-size:.96rem; margin:12px 0 20px; max-width:330px; }
+    .paw-brand-hero-pets { bottom:0; right:-15px; width:min(94%,535px); max-height:250px; }
+    .paw-page-hero { padding:24px 20px; min-height:210px; }
+    .paw-page-hero-copy { max-width:70%; }
+    .paw-page-hero-pets { width:43%; right:-20px; opacity:.7; }
+    .paw-page-hero-title { font-size:1.8rem; }
+    .paw-home-mascot { width:96px; height:96px; }
+    .paw-home-category { min-height:130px; padding:15px; gap:10px; }
+    .paw-order-card { padding:14px; }
+}
+@media (max-width: 520px) {
+    .paw-page-hero-copy { max-width:100%; }
+    .paw-page-hero-pets { width:55%; opacity:.21; }
+    .paw-home-category h2 { font-size:1.08rem; }
+    .paw-home-category p { font-size:.75rem; }
+    .paw-home-mascot { width:74px; height:84px; }
+    .paw-home-category-arrow { display:none; }
+    .paw-new-arrivals { padding:18px; }
+    .paw-order-icon { display:none; }
+    .paw-order-card-end { min-width:114px; }
+    .paw-account-data > div { grid-template-columns:1fr; gap:2px; }
+}
+/* Delicate pet-themed field labels and finishing touches. */
+.paw-checkout-page label[for="RecipientName"]::before { content:"♡ "; color:#d7958a; }
+.paw-checkout-page label[for="RecipientPhone"]::before { content:"☎ "; color:#8d9d6d; }
+.paw-checkout-page label[for="ShippingAddress"]::before { content:"⌂ "; color:#8d9d6d; }
+.paw-checkout-page label[for="Notes"]::before { content:"✎ "; color:#b18f6b; }
+.paw-checkout-page .table thead, .paw-account-page .table thead { background:#f1f4e7; }
+.paw-checkout-page .table thead th { color:#566e47; font-size:.87rem; }
+.paw-detail-image-box { background:linear-gradient(130deg,#fff9f0,#eff4e4); border-color:#eee2d4; border-radius:25px; }
+.paw-detail-buy-box { background:#f1f4e7; border:1px solid #e4e8d4; border-radius:22px; }
+.paw-success-page { background:radial-gradient(ellipse at center top,#eff5e0,transparent 72%); border-radius:25px; }
+.paw-account-list-row a, .paw-cart-continue { color:#597646; }
